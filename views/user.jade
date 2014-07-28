@@ -1,0 +1,47 @@
+extends layout
+
+block body
+	.container
+		#graph
+		script(src='/js/d3.min.js')
+		script(src='/js/d3-graph.js')
+		script(type='text/javascript' defer).
+			graph(#{dataUser.id});
+			jQuery(document).ready(function($) {
+				$(".data-row").click(function() {
+					window.document.location = $(this).attr("href");
+				});
+			});
+		br
+		h2 User Information
+		table#user-data.table.table-hover
+			thead
+				tr
+					th ID
+					th Name
+					th Gender
+					th Grade
+			tbody
+				tr
+					td #{dataUser.id}
+					td #{dataUser.data.name}
+					td #{dataUser.data.gender}
+					td #{dataUser.data.year}
+		br
+		h2 Relationship Information
+		table#rels-data.table.table-hover
+			thead
+				tr
+					th ID
+					th Name
+					th Gender
+					th Grade
+			tbody
+				for rel in dataRelations
+					tr(href="/graph/users/#{rel.id}").data-row
+						td #{rel.id}
+						td #{rel.data.name}
+						td #{rel.data.gender}
+						td 
+							a(href="#") #{rel.data.year}
+

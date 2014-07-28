@@ -1,0 +1,40 @@
+doctype html
+html
+	head
+		meta(charset='utf-8')
+		meta(content='IE=edge', http-equiv='X-UA-Compatible')
+		meta(content='width=device-width, initial-scale=1', name='viewport')
+		title= 'Thacher-Graphics | ' + title
+		link(href='/css/bootstrap.min.css', rel='stylesheet')
+		link(href='/css/style.css', rel='stylesheet')
+		<!--[if lt IE 9 ]>
+		<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+		<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+		script(src='https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js')
+		script(src='/js/bootstrap.min.js')
+	body
+		nav.navbar.navbar-default.navbar-static.navbar-inverse(role='navigation')
+			.container-fluid
+				.navbar-header
+					button.navbar-toggle(type='button', data-toggle='collapse', data-target='#navbar-collapse')
+						span.sr-only Toggle navigation
+						span.icon-bar
+						span.icon-bar
+						span.icon-bar
+					a.navbar-brand(href='#') Thacher-Graphics
+
+				#navbar-collapse.collapse.navbar-collapse
+					ul.nav.navbar-nav
+						li.dropdown
+							a.dropdown-toggle(href='#', data-toggle='dropdown')
+								| Relationship Graphing
+								span.caret
+							ul.dropdown-menu(role='menu')
+								li
+									a(href='/graph') Main Graph
+								li
+									a(href="#") Class Pages								
+								li
+									a(href='#' title="Not Here Yet") Other
+		block body

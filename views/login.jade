@@ -1,0 +1,24 @@
+extends layout
+
+block body
+  .login
+    .row
+      .col-lg-8.col-lg-offset-2
+        form.bs-example.form-horizontal(method='post', action='')
+          fieldset
+            legend Login
+            if error
+              .alert.alert-dismissable.alert-danger.login-fail
+                button.close(type='button', data-dismiss='alert') &times;
+                p.
+                  #{error}
+            .form-group
+              .col-lg-12
+                input#username.form-control(type='email', name='username', placeholder='Email', autofocus)
+            .form-group
+              .col-lg-12
+                input#password.form-control(type='password', name='password', placeholder='Password')
+            .form-group
+              .col-lg-12
+                button.btn.btn-primary(type='submit') Login
+                a.btn.btn-link(href="/register") Register

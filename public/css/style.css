@@ -1,0 +1,30 @@
+.register, .login {
+	margin-top: 6em;
+}
+.register-fail, .login-fail {
+	margin-bottom: 1em;
+}
+.login {
+	margin-bottom: 2em;
+}
+.node {
+	stroke: #fff;
+	stroke-width: 1.5px;
+}
+.link {
+	stroke: #999;
+	stroke-opacity: .6;
+}
+
+#graph {
+	padding: 0;
+}
+
+.navbar {
+	margin-bottom: 0;
+}
+
+* {
+	border-radius: 0 !important;
+	-moz-border-radius: 0 !important;
+}
