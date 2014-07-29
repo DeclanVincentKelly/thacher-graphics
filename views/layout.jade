@@ -23,18 +23,21 @@ html
 						span.icon-bar
 						span.icon-bar
 					a.navbar-brand(href='/') Thacher-Graphics
-
-				#navbar-collapse.collapse.navbar-collapse
-					ul.nav.navbar-nav
-						li.dropdown
-							a.dropdown-toggle(href='#', data-toggle='dropdown')
-								| Relationship Graphing
-								span.caret
-							ul.dropdown-menu(role='menu')
-								li
-									a(href='/') Main Graph
-								li
-									a(href="#") Class Pages								
-								li
-									a(href='#' title="Not Here Yet") Other
+				if user
+					#navbar-collapse.collapse.navbar-collapse
+						ul.nav.navbar-nav
+							li.dropdown
+								a.dropdown-toggle(href='#', data-toggle='dropdown')
+									| Relationship Graphing
+									span.caret
+								ul.dropdown-menu(role='menu')
+									li
+										a(href='/') Main Graph
+									li
+										a(href="#") Class Pages								
+									li
+										a(href='#' title="Not Here Yet") Other
+						ul.nav.navbar-nav.navbar-right
+							li
+								a(href='/logout') Logout
 		block body

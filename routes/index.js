@@ -12,6 +12,7 @@ router.get('/', function(req, res) {
     res.redirect('/graph');
 });
 
+/*
 router.get('/register', function(req, res) {
     res.render('register', {
         title: 'Register',
@@ -58,6 +59,7 @@ router.post('/register', function(req, res) {
     });
 
 });
+*/
 
 
 router.get('/login', function(req, res) {
