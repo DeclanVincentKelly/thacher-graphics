@@ -12,7 +12,11 @@ var flash = require('connect-flash');
 var routes = require('./routes');
 var graph = require('./routes/graph.js')
 var app = express();
-var strategy = new StormpathStrategy();
+var strategy = new StormpathStrategy({
+    apiKeyId: process.env["STORMPATH_API_KEY_ID"],
+    apiKeySecret: process.env['STORMPATH_API_KEY_SECRET'],
+    appHref: process.env["STORMPATH_URL"]
+});
 //'Finished requires'
 
 //'Set up passport'

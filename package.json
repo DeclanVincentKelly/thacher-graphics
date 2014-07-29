@@ -20,5 +20,9 @@
     "connect-flash": "~0.1.1",
     "stormpath": "~0.1.2",
     "neo4j": "^1.1.0"
+  },
+  "engines": {
+    "node": "0.10.x",
+    "npm": "1.4.x"
   }
 }

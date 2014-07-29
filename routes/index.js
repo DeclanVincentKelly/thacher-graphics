@@ -6,12 +6,10 @@ var apiKey = new stormpath.ApiKey(
         process.env['STORMPATH_API_KEY_ID'],
         process.env['STORMPATH_API_KEY_SECRET']
     );
-var spClient = new stormpath.Client({
-        apiKey: apiKey
-    });
+var spClient = new stormpath.Client({apiKey: apiKey});
 
 router.get('/', function(req, res) {
-    res.redirect('/login');
+    res.redirect('/graph');
 });
 
 router.get('/register', function(req, res) {
