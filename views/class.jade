@@ -1,0 +1,31 @@
+extends layout
+
+block body
+	.container
+		#graph
+		script(src='/js/d3.min.js')
+		script(src='/js/d3-graph.js')
+		script(type='text/javascript' defer).
+			graph('/graph/data/class/#{year}', (5/12));
+			jQuery(document).ready(function($) {
+				$(".data-row").click(function() {
+					window.document.location = $(this).attr("href");
+				});
+			});
+		br
+		h2 Class Information
+		table#class-data.table.table-hover
+			thead
+				tr
+					th ID
+					th Name
+					th Gender
+					th Grade
+			tbody
+				for mem in classMembers
+					tr(href="/graph/users/#{mem.id}").data-row
+						td #{mem.id}
+						td #{mem.data.name}
+						td #{mem.data.gender}
+						td 
+							a(href="/graph/class/#{mem.data.year}") #{mem.data.year}

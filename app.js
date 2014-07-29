@@ -10,6 +10,7 @@ var session = require('express-session');
 var flash = require('connect-flash');
 
 var routes = require('./routes');
+var graph = require('./routes/graph.js')
 var app = express();
 var strategy = new StormpathStrategy();
 //'Finished requires'
@@ -38,6 +39,7 @@ app.use(flash());
 
 //'Route setup'
 app.use('/', routes);
+app.use('/graph', graph);
 
 //'Catch 404 and forwarding to error handler'
 app.use(function(req, res, next) {

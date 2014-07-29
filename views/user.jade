@@ -6,7 +6,7 @@ block body
 		script(src='/js/d3.min.js')
 		script(src='/js/d3-graph.js')
 		script(type='text/javascript' defer).
-			graph(#{dataUser.id});
+			graph('/graph/data/users/#{dataUser.id}', (1/5));
 			jQuery(document).ready(function($) {
 				$(".data-row").click(function() {
 					window.document.location = $(this).attr("href");
@@ -26,7 +26,8 @@ block body
 					td #{dataUser.id}
 					td #{dataUser.data.name}
 					td #{dataUser.data.gender}
-					td #{dataUser.data.year}
+					td 
+						a(href="/graph/class/#{dataUser.data.year}") #{dataUser.data.year}
 		br
 		h2 Relationship Information
 		table#rels-data.table.table-hover
@@ -43,5 +44,5 @@ block body
 						td #{rel.data.name}
 						td #{rel.data.gender}
 						td 
-							a(href="#") #{rel.data.year}
+							a(href="/graph/class/#{rel.data.year}") #{rel.data.year}
 
