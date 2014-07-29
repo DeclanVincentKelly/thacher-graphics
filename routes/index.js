@@ -2,6 +2,13 @@ var express = require('express');
 var router = express.Router();
 var passport = require('passport');
 var stormpath = require('stormpath');
+var apiKey = new stormpath.ApiKey(
+        process.env['STORMPATH_API_KEY_ID'],
+        process.env['STORMPATH_API_KEY_SECRET']
+    );
+var spClient = new stormpath.Client({
+        apiKey: apiKey
+    });
 
 router.get('/', function(req, res) {
     res.redirect('/login');
@@ -27,14 +34,6 @@ router.post('/register', function(req, res) {
             error: 'Email and password required.'
         });
     }
-
-    var apiKey = new stormpath.ApiKey(
-        process.env['STORMPATH_API_KEY_ID'],
-        process.env['STORMPATH_API_KEY_SECRET']
-    );
-    var spClient = new stormpath.Client({
-        apiKey: apiKey
-    });
 
     var app = spClient.getApplication(process.env['STORMPATH_URL'], function(err, app) {
         if (err) throw err;
@@ -66,7 +65,8 @@ router.post('/register', function(req, res) {
 router.get('/login', function(req, res) {
     res.render('login', {
         title: 'Login',
-        error: req.flash('error')[0]
+        error: req.flash('error')[0],
+        query: req.query
     });
 });
 
@@ -76,16 +76,26 @@ router.get('/logout', function(req, res) {
     res.redirect('/');
 });
 
-
-router.post(
-    '/login',
-    passport.authenticate(
-        'stormpath', {
-            successRedirect: '/graph',
-            failureRedirect: '/login',
-            failureFlash: 'Invalid email or password.',
+router.post('/login', function(req, res, next) {
+    passport.authenticate('stormpath', function(err, user, info) {
+        if (err) {
+            return next(err);
         }
-    )
-);
+        if (!user) {
+            req.flash('error', 'Invalid email or password');
+            return res.redirect(req.originalUrl);
+        }
+        req.logIn(user, function(err) {
+            if (err) {
+                return next(err);
+            }
+            if(req.query.suc) {
+                return res.redirect(req.query.suc);
+            } else {
+                return res.redirect('/graph');
+            }
+        });
+    })(req, res, next);
+});
 
 module.exports = router;

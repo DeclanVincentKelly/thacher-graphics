@@ -5,12 +5,14 @@ block body
 		#graph
 		script(src='/js/d3.min.js')
 		script(src='/js/d3-graph.js')
+		script(src='/js/jquery.tablesorter.min.js')
 		script(type='text/javascript' defer).
 			graph('/graph/data/users/#{dataUser.id}', (1/5));
 			jQuery(document).ready(function($) {
 				$(".data-row").click(function() {
 					window.document.location = $(this).attr("href");
 				});
+				$("#rels-data").tablesorter(); 
 			});
 		br
 		h2 User Information

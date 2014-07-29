@@ -6,6 +6,7 @@ var db = new neo4j.GraphDatabase(
 	process.env['GRAPHENEDB_URL'] ||
 	'http://localhost:7474'
 );
+var querystring = require('querystring')
 
 function getIndexForID(list, id) {
 	for (var i in list) {
@@ -17,7 +18,7 @@ function getIndexForID(list, id) {
 
 router.get('/', function(req, res) {
 	if (!req.user || req.user.status !== 'ENABLED') {
-		return res.redirect('/login');
+		return res.redirect('/login?' + querystring.stringify({ suc: '/graph' + req.path }));
 	}
 
 	res.render('graph', {
@@ -28,7 +29,7 @@ router.get('/', function(req, res) {
 
 router.get('/data', function(req, resp) {
 	if (!req.user || req.user.status !== 'ENABLED') {
-		return res.redirect('/login');
+		return res.redirect('/login?' + querystring.stringify({ suc: '/graph' + req.path }));
 	}
 
 	var jsonRes = {
@@ -71,7 +72,7 @@ router.get('/data', function(req, resp) {
 
 router.get('/data/users/:id', function(req, resp) {
 	if (!req.user || req.user.status !== 'ENABLED') {
-		return res.redirect('/login');
+		return res.redirect('/login?' + querystring.stringify({ suc: '/graph' + req.path }));
 	}
 
 	var jsonRes = {
@@ -122,7 +123,7 @@ router.get('/users', function(req, res) {
 
 router.get('/users/:id', function(req, res) {
 	if (!req.user || req.user.status !== 'ENABLED') {
-		return res.redirect('/login');
+		return res.redirect('/login?' + querystring.stringify({ suc: '/graph' + req.path }));
 	}
 
 	db.getNodeById(Number(req.params.id), function(err, user) {
@@ -154,9 +155,9 @@ router.get('/users/:id', function(req, res) {
 });
 
 router.get('/class/:year', function(req, res) {
-	/*if (!req.user || req.user.status !== 'ENABLED') {
-		return res.redirect('/login');
-	}*/
+	if (!req.user || req.user.status !== 'ENABLED') {
+		return res.redirect('/login?' + querystring.stringify({ suc: '/graph' + req.path }));
+	}
 
 	var members = []
 	'=;'
@@ -188,9 +189,9 @@ router.get('/class/:year', function(req, res) {
 });
 
 router.get('/data/class/:year', function(req, res) {
-	/*if (!req.user || req.user.status !== 'ENABLED') {
-		return res.redirect('/login');
-	}*/
+	if (!req.user || req.user.status !== 'ENABLED') {
+		return res.redirect('/login?' + querystring.stringify({ suc: '/graph' + req.path }));
+	}
 
 	var jsonRes = {
 		nodes: [],
@@ -213,8 +214,6 @@ router.get('/data/class/:year', function(req, res) {
 	var params = {
 		year: Number(req.params.year)
 	}
-
-	console.log(params)
 
 	db.query(queryN, params, function(err, resN) {
 		if (err) throw err;
