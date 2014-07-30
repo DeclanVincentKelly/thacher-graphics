@@ -18,7 +18,9 @@ function getIndexForID(list, id) {
 
 router.get('/', function(req, res) {
 	if (!req.user || req.user.status !== 'ENABLED') {
-		return res.redirect('/login?' + querystring.stringify({ suc: '/graph' + req.path }));
+		return res.redirect('/login?' + querystring.stringify({
+			suc: '/graph' + req.path
+		}));
 	}
 
 	res.render('graph', {
@@ -29,7 +31,9 @@ router.get('/', function(req, res) {
 
 router.get('/data', function(req, resp) {
 	if (!req.user || req.user.status !== 'ENABLED') {
-		return res.redirect('/login?' + querystring.stringify({ suc: '/graph' + req.path }));
+		return res.redirect('/login?' + querystring.stringify({
+			suc: '/graph' + req.path
+		}));
 	}
 
 	var jsonRes = {
@@ -72,7 +76,9 @@ router.get('/data', function(req, resp) {
 
 router.get('/data/users/:id', function(req, resp) {
 	if (!req.user || req.user.status !== 'ENABLED') {
-		return res.redirect('/login?' + querystring.stringify({ suc: '/graph' + req.path }));
+		return res.redirect('/login?' + querystring.stringify({
+			suc: '/graph' + req.path
+		}));
 	}
 
 	var jsonRes = {
@@ -112,18 +118,11 @@ router.get('/data/users/:id', function(req, resp) {
 	});
 });
 
-router.get('/users', function(req, res) {
-	if (!req.user || req.user.status !== 'ENABLED') {
-		return res.redirect('/login');
-	}
-
-	//TODO
-
-});
-
 router.get('/users/:id', function(req, res) {
 	if (!req.user || req.user.status !== 'ENABLED') {
-		return res.redirect('/login?' + querystring.stringify({ suc: '/graph' + req.path }));
+		return res.redirect('/login?' + querystring.stringify({
+			suc: '/graph' + req.path
+		}));
 	}
 
 	db.getNodeById(Number(req.params.id), function(err, user) {
@@ -156,11 +155,12 @@ router.get('/users/:id', function(req, res) {
 
 router.get('/class/:year', function(req, res) {
 	if (!req.user || req.user.status !== 'ENABLED') {
-		return res.redirect('/login?' + querystring.stringify({ suc: '/graph' + req.path }));
+		return res.redirect('/login?' + querystring.stringify({
+			suc: '/graph' + req.path
+		}));
 	}
 
 	var members = []
-	'=;'
 
 	var queryN = [
 		'MATCH (n)',
@@ -168,29 +168,47 @@ router.get('/class/:year', function(req, res) {
 		'RETURN n'
 	].join('\n');
 
+	var years = [
+		'MATCH (n)',
+		'WHERE NOT n.year={ year }',
+		'RETURN DISTINCT n.year AS y',
+		'ORDER BY n.year'
+	].join('\n');
+
 	var params = {
 		year: Number(req.params.year)
 	}
 	db.query(queryN, params, function(err, resN) {
-		if(err) throw err;
-		for(var i in resN) {
+		if (err) throw err;
+		for (var i in resN) {
 			members.push({
 				id: resN[i]['n'].id,
 				data: resN[i]['n'].data
 			});
 		}
-		res.render('class', {
-			title: "Class of " + req.params.year,
-			user: req.user,
-			year: Number(req.params.year),
-			classMembers: members
+		db.query(years, params, function(err, resY) {
+			if(err) throw err;
+			var oYear = [];
+			for(var i in resY) {
+				oYear.push(resY[i]['y']);
+			}
+			console.log(oYear);
+			res.render('class', {
+				title: "Class of " + req.params.year,
+				user: req.user,
+				year: Number(req.params.year),
+				classMembers: members,
+				otherYears: oYear
+			});
 		});
 	});
 });
 
 router.get('/data/class/:year', function(req, res) {
 	if (!req.user || req.user.status !== 'ENABLED') {
-		return res.redirect('/login?' + querystring.stringify({ suc: '/graph' + req.path }));
+		return res.redirect('/login?' + querystring.stringify({
+			suc: '/graph' + req.path
+		}));
 	}
 
 	var jsonRes = {

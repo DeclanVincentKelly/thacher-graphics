@@ -15,6 +15,13 @@ block body
 				$("#class-data").tablesorter();
 			});
 		br
+		ul.nav.nav-tabs
+			li.active
+				a(href="#") #{year}
+			for oYear in otherYears
+				li
+					a(href="/graph/class/#{oYear}") #{oYear}
+		br
 		h2 Class Information
 		table#class-data.table.table-hover
 			thead

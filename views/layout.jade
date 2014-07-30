@@ -38,6 +38,13 @@ html
 									li
 										a(href='#' title="Not Here Yet") Other
 						ul.nav.navbar-nav.navbar-right
-							li
-								a(href='/logout') Logout
+							li.dropdown
+								a.dropdown-toggle(href='#', data-toggle='dropdown')
+									| #{user.givenName} #{user.surname}
+									span.caret
+								ul.dropdown-menu(role='menu')
+									li
+										a(href='/') Main Graph					
+									li
+										a(href='/logout') Logout
 		block body
