@@ -194,7 +194,6 @@ router.get('/class/:year', function(req, res) {
 			for (var i in resY) {
 				oYear.push(resY[i]['y']);
 			}
-			console.log(oYear);
 			res.render('class', {
 				title: "Class of " + req.params.year,
 				user: req.user,

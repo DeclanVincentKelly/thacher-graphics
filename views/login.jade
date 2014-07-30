@@ -1,24 +1,25 @@
 extends layout
 
 block body
-  .login
-    .row
-      .container
-        form(role='form' method='post', action='')
-          fieldset
-            legend Login
-            if error
-              .alert.alert-dismissable.alert-danger.login-fail
-                button.close(type='button', data-dismiss='alert') &times;
-                p.
-                  #{error}
-            .form-group
-              .col-lg-12
-                input#username.form-control(type='email', name='username', placeholder='Email', autofocus)
-            .form-group
-              .col-lg-12
-                input#password.form-control(type='password', name='password', placeholder='Password')
-            .form-group
-              .col-lg-12
-                button.btn.btn-primary(type='submit') Login
-                //a.btn.btn-link(href="/register") Register
+	.login
+		.row
+			.container
+				.col-xs-12
+					form(role='form' method='post', action='').form-horizontal
+						fieldset
+							legend Login
+							if error
+								.alert.alert-dismissable.alert-danger.login-fail
+									button.close(type='button', data-dismiss='alert') &times;
+									p.
+										#{error}
+							.form-group
+								.col-lg-12
+									input#username.form-control(type='email', name='username', placeholder='Email', autofocus)
+							.form-group
+								.col-lg-12
+									input#password.form-control(type='password', name='password', placeholder='Password')
+							.form-group
+								.col-lg-12
+									button.btn.btn-primary(type='submit') Login
+									//a.btn.btn-link(href="/register") Register
