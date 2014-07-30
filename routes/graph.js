@@ -229,7 +229,7 @@ router.get('/data/class/:year', function(req, res) {
 
 
 	var params = {
-		year: 2015
+		year: Number(req.params.year)
 	}
 
 	db.query(queryN, params, function(err, resQ) {
