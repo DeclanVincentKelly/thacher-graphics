@@ -4,9 +4,11 @@ block body
 	.container
 		#graph
 		script(src='/js/d3.min.js')
+		link(rel="stylesheet" type="text/css" href="/css/d3-tip-style.css")
+		script(src='/js/d3-tip.js')
 		script(src='/js/d3-graph.js')
 		script(src='/js/jquery.tablesorter.min.js')
-		script(type='text/javascript' defer).
+		script(type='text/javascript' async).
 			graph('/graph/data/class/#{year}', (5/12));
 			jQuery(document).ready(function($) {
 				$(".data-row").click(function() {
@@ -21,8 +23,6 @@ block body
 			for oYear in otherYears
 				li
 					a(href="/graph/class/#{oYear}") #{oYear}
-		br
-		h2 Class Information
 		table#class-data.table.table-hover
 			thead
 				tr

@@ -86,8 +86,9 @@ router.get('/data/users/:id', function(req, resp) {
 		links: []
 	};
 	var query = [
-		'MATCH (a)-[r]-(b)',
+		'MATCH (a:Student)',
 		'WHERE id(a)={ id }',
+		'OPTIONAL MATCH (a)-[r]-(b)',
 		'RETURN a,r,b'
 	].join('\n');
 
@@ -103,17 +104,18 @@ router.get('/data/users/:id', function(req, resp) {
 			data: res[0]['a'].data,
 		});
 		for (var i in res) {
-			jsonRes.nodes.push({
-				index: Number(i) + 1,
-				id: res[i]['b'].id,
-				data: res[i]['b'].data,
-			});
-			jsonRes.links.push({
-				source: getIndexForID(jsonRes.nodes, res[i]['r'].start.id),
-				target: getIndexForID(jsonRes.nodes, res[i]['r'].end.id),
-			});
+			if (res[i]['b']) {
+				jsonRes.nodes.push({
+					index: Number(i) + 1,
+					id: res[i]['b'].id,
+					data: res[i]['b'].data,
+				});
+				jsonRes.links.push({
+					source: getIndexForID(jsonRes.nodes, res[i]['r'].start.id),
+					target: getIndexForID(jsonRes.nodes, res[i]['r'].end.id),
+				});
+			}
 		}
-
 		resp.send(jsonRes);
 	});
 });
@@ -187,9 +189,9 @@ router.get('/class/:year', function(req, res) {
 			});
 		}
 		db.query(years, params, function(err, resY) {
-			if(err) throw err;
+			if (err) throw err;
 			var oYear = [];
-			for(var i in resY) {
+			for (var i in resY) {
 				oYear.push(resY[i]['y']);
 			}
 			console.log(oYear);
@@ -217,42 +219,37 @@ router.get('/data/class/:year', function(req, res) {
 	};
 
 	var queryN = [
-		'MATCH (n)',
-		'WHERE n.year = { year }',
-		'RETURN n'
-	].join('\n');
-
-	var queryR = [
-		'MATCH (a)-[r]-(b)',
-		'WHERE a.year = { year } AND b.year = { year }',
-		'RETURN a,r,b'
+		'MATCH (a)',
+		'WHERE a.year = { year }',
+		'OPTIONAL MATCH (a)-[r]-(b)',
+		'WHERE b.year = { year }',
+		'WITH a, collect(r) AS rels',
+		'RETURN a, rels'
 	].join('\n');
 
 
 	var params = {
-		year: Number(req.params.year)
+		year: 2015
 	}
 
-	db.query(queryN, params, function(err, resN) {
+	db.query(queryN, params, function(err, resQ) {
 		if (err) throw err;
-		for (var i in resN) {
-			var temp = {
+		for (var i in resQ) {
+			jsonRes.nodes.push({
 				index: Number(i),
-				id: resN[i]['n'].id,
-				data: resN[i]['n'].data
-			}
-			jsonRes.nodes.push(temp);
+				id: resQ[i]['a'].id,
+				data: resQ[i]['a'].data
+			});
 		}
-		db.query(queryR, params, function(err, resR) {
-			if (err) throw err;
-			for (var i in resR) {
+		for (var i in resQ) {
+			for (var j in resQ[i]['rels']) {
 				jsonRes.links.push({
-					source: getIndexForID(jsonRes.nodes, resR[i]['r'].start.id),
-					target: getIndexForID(jsonRes.nodes, resR[i]['r'].end.id)
+					source: getIndexForID(jsonRes.nodes, resQ[i]['rels'][j].start.id),
+					target: getIndexForID(jsonRes.nodes, resQ[i]['rels'][j].end.id)
 				});
 			}
-			res.send(jsonRes);
-		});
+		}
+		res.send(jsonRes);
 	});
 });
 

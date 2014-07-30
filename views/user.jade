@@ -4,18 +4,20 @@ block body
 	.container
 		#graph
 		script(src='/js/d3.min.js')
+		link(rel="stylesheet" type="text/css" href="/css/d3-tip-style.css")
+		script(src='/js/d3-tip.js')
 		script(src='/js/d3-graph.js')
 		script(src='/js/jquery.tablesorter.min.js')
-		script(type='text/javascript' defer).
-			graph('/graph/data/users/#{dataUser.id}', (1/5));
+		script(type='text/javascript' async).
+			graph('/graph/data/users/#{dataUser.id}', (2/10));
 			jQuery(document).ready(function($) {
 				$(".data-row").click(function() {
 					window.document.location = $(this).attr("href");
 				});
-				$("#rels-data").tablesorter(); 
+				$("#rels-data").tablesorter();
 			});
 		br
-		h2 User Information
+		h2 User
 		table#user-data.table.table-hover
 			thead
 				tr
@@ -31,7 +33,7 @@ block body
 					td 
 						a(href="/graph/class/#{dataUser.data.year}") #{dataUser.data.year}
 		br
-		h2 Relationship Information
+		h2 Relationships
 		table#rels-data.table.table-hover
 			thead
 				tr

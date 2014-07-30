@@ -3,6 +3,8 @@ extends layout
 block body
 	#graph.container-fluid
 		script(src='/js/d3.min.js')
+		link(rel="stylesheet" type="text/css" href="/css/d3-tip-style.css")
+		script(src='/js/d3-tip.js')
 		script(src='/js/d3-graph.js')
-		script(type='text/javascript' defer).
+		script(type='text/javascript').
 			graph('/graph/data');

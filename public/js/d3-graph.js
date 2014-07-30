@@ -45,18 +45,21 @@ graph = function(queryURL, ratio) {
 			width = $('#graph').outerWidth();
 		}
 
+		var color = d3.scale.category10();
+
+		var tip = d3.tip().attr('class', 'd3-tip').html(function(d) {console.log(d); return d.data.name; })
+
 		var svg = d3.select("#graph")
 			.append("svg")
 			.attr("width", width)
-			.attr("height", height);
+			.attr("height", height)
+			.call(tip);
 
 		var force = d3.layout.force()
 			.linkDistance(20)
 			.charge(-800)
 			.gravity(1.4)
 			.size([width, height]);
-
-		var color = d3.scale.category10()
 
 		force
 			.nodes(json.nodes)
@@ -87,12 +90,9 @@ graph = function(queryURL, ratio) {
 			.style("fill", function(d) {
 				return color(Number(d.data.year) - 2012);
 			})
-			.call(force.drag);
-
-		node.append("title")
-			.text(function(d) {
-				return d.data.name;
-			});
+			.call(force.drag)
+			.on('mouseover', tip.show)
+			.on('mouseout', tip.hide);
 
 		var maxRadius = 0;
 		node.each(function(d) {

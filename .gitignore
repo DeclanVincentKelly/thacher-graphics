@@ -2,3 +2,4 @@ env.ps1
 *.log
 /node_modules
 /.sub
+dbq.js

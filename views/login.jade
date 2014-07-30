@@ -3,8 +3,8 @@ extends layout
 block body
   .login
     .row
-      .col-lg-8.col-lg-offset-2
-        form.bs-example.form-horizontal(method='post', action='')
+      .container
+        form(role='form' method='post', action='')
           fieldset
             legend Login
             if error
