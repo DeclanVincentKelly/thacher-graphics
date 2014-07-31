@@ -11,29 +11,37 @@ var waitForFinalEvent = (function() {
 	};
 })();
 
-updateWindow = function(ratio, svg, force) {
+var updateWindow = function(ratio, svg, force, graph, rect) {
 	return function() {
 		waitForFinalEvent(function() {
 			if (ratio) {
 				width = $('.container').outerWidth();
 				height = width * (ratio);
 			} else {
-				height = $(window).height() - $('nav').outerHeight() - 5;
-				width = $('#graph').outerWidth();
+				height = $(window).height() - $('nav').outerHeight();
+				width = $(window).innerWidth();
 			}
+			graph
+				.attr("width", width)
+				.attr('height', height);
+
 			svg
+				.attr("width", width)
+				.attr('height', height);
+
+			rect
 				.attr("width", width)
 				.attr('height', height);
 
 			force.size([width, height])
 				.start();
 
-		}, 500, "some unique string");
+		}, 600, "some unique string");
 	}
 }
 
 graph = function(queryURL, ratio) {
-	
+
 	d3.json(queryURL, function(err, json) {
 		if (err) throw err;
 		var height, width;
@@ -41,19 +49,33 @@ graph = function(queryURL, ratio) {
 			width = $('.container').outerWidth();
 			height = width * (ratio);
 		} else {
-			height = $(window).height() - $('nav').outerHeight() - 5;
-			width = $('#graph').outerWidth();
+			height = $(window).height() - $('nav').outerHeight();
+			width = $(window).innerWidth();
 		}
 
 		var color = d3.scale.category10();
 
-		var tip = d3.tip().attr('class', 'd3-tip').html(function(d) {console.log(d); return d.data.name; })
+		var tip = d3.tip().attr('class', 'd3-tip').html(function(d) {
+			return d.data.name;
+		});
+
 
 		var svg = d3.select("#graph")
-			.append("svg")
+			.append("svg:svg")
 			.attr("width", width)
 			.attr("height", height)
-			.call(tip);
+
+		var graph = svg.append('g')
+			.call(tip)
+			.call(d3.behavior.zoom().scaleExtent([.3, 3]).on("zoom", zoom));
+
+		var rect = graph.append('rect')
+			.attr('width', width)
+			.attr('height', height)
+			.style('fill', 'none')
+			.style('pointer-events', 'all');
+
+		var vis = graph.append('svg:g');
 
 		var force = d3.layout.force()
 			.linkDistance(20)
@@ -66,7 +88,7 @@ graph = function(queryURL, ratio) {
 			.links(json.links)
 			.start();
 
-		var link = svg.selectAll(".link")
+		var link = vis.selectAll(".link")
 			.data(json.links)
 			.enter()
 			.append("line")
@@ -75,7 +97,7 @@ graph = function(queryURL, ratio) {
 				return Math.sqrt((d.source.weight + d.target.weight) / 2);
 			});
 
-		var node = svg.selectAll(".node")
+		var node = vis.selectAll(".node")
 			.data(json.nodes)
 			.enter()
 			.append('a')
@@ -90,7 +112,6 @@ graph = function(queryURL, ratio) {
 			.style("fill", function(d) {
 				return color(Number(d.data.year) - 2012);
 			})
-			.call(force.drag)
 			.on('mouseover', tip.show)
 			.on('mouseout', tip.hide);
 
@@ -116,11 +137,11 @@ graph = function(queryURL, ratio) {
 
 			node.each(collide(.5))
 				.attr("cx", function(d) {
-					return d.x = Math.max((d.weight + 3) * 1.5, Math.min(width - ((d.weight + 3) * 1.5), d.x));
+					return d.x;
 				})
 				.attr("cy", function(d) {
-					return d.y = Math.max((d.weight + 3) * 1.5, Math.min(height - (d.weight + 3) * 1.5, d.y));
-				});
+					return d.y;
+				})
 		});
 
 		function collide(alpha) {
@@ -153,6 +174,11 @@ graph = function(queryURL, ratio) {
 		function radius(d) {
 			return (d.weight + 3) * 1.75;
 		}
-		$(window).resize(updateWindow(ratio, svg, force));
+
+		function zoom() {
+			vis.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+		}
+
+		$(window).resize(updateWindow(ratio, svg, force, graph, rect));
 	});
 }

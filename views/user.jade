@@ -9,12 +9,13 @@ block body
 		script(src='/js/d3-graph.js')
 		script(src='/js/jquery.tablesorter.min.js')
 		script(type='text/javascript' async).
-			graph('/graph/data/users/#{dataUser.id}', (2/10));
+			graph('/graph/data/users/#{dataUser.id}', (3/10));
 			jQuery(document).ready(function($) {
 				$(".data-row").click(function() {
 					window.document.location = $(this).attr("href");
 				});
 				$("#rels-data").tablesorter();
+				$("body").css("overflow-x", "hidden");
 			});
 		h2 User
 		table#user-data.table.table-hover

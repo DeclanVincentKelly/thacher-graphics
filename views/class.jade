@@ -9,12 +9,13 @@ block body
 		script(src='/js/d3-graph.js')
 		script(src='/js/jquery.tablesorter.min.js')
 		script(type='text/javascript' async).
-			graph('/graph/data/class/#{year}', (5/12));
+			graph('/graph/data/class/#{year}', (4/10));
 			jQuery(document).ready(function($) {
 				$(".data-row").click(function() {
 					window.document.location = $(this).attr("href");
 				});
 				$("#class-data").tablesorter();
+				$("body").css("overflow-x", "hidden");
 			});
 		ul.nav.nav-tabs
 			li.active
