@@ -3,10 +3,13 @@ var router = express.Router();
 var passport = require('passport');
 var stormpath = require('stormpath');
 var apiKey = new stormpath.ApiKey(
-        process.env['STORMPATH_API_KEY_ID'],
-        process.env['STORMPATH_API_KEY_SECRET']
-    );
-var spClient = new stormpath.Client({apiKey: apiKey});
+    process.env['STORMPATH_API_KEY_ID'],
+    process.env['STORMPATH_API_KEY_SECRET']
+);
+var spClient = new stormpath.Client({
+    apiKey: apiKey
+});
+var querystring = require('querystring');
 
 router.get('/', function(req, res) {
     res.redirect('/graph');
@@ -70,6 +73,20 @@ router.get('/login', function(req, res) {
     });
 });
 
+router.get('/change', function(req, res) {
+    if (!req.user || req.user.status !== 'ENABLED') {
+        return res.redirect('/login?' + querystring.stringify({
+            suc: '/graph'
+        }));
+    }
+
+    spClient.getApplication(process.env['STORMPATH_URL'], function(err, app) {
+        if (err) throw err;
+        app.sendPasswordResetEmail(req.user.email, function(err, res) {
+            if (err) throw err;
+        });
+    });
+});
 
 router.get('/logout', function(req, res) {
     req.logout();
@@ -89,7 +106,7 @@ router.post('/login', function(req, res, next) {
             if (err) {
                 return next(err);
             }
-            if(req.query.suc) {
+            if (req.query.suc) {
                 return res.redirect(req.query.suc);
             } else {
                 return res.redirect('/graph');

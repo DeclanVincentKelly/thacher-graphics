@@ -6,7 +6,7 @@ var db = new neo4j.GraphDatabase(
 	process.env['GRAPHENEDB_URL'] ||
 	'http://localhost:7474'
 );
-var querystring = require('querystring')
+var querystring = require('querystring');
 
 function getIndexForID(list, id) {
 	for (var i in list) {

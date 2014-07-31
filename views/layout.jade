@@ -13,6 +13,18 @@ html
 		<![endif]-->
 		script(src='https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js')
 		script(src='/js/bootstrap.min.js')
+		script(type='text/javascript').
+			function resetPass() {
+				$('#passModal').modal({
+					keyboard: false,
+					backdrop: 'static'
+				});
+
+				$('#confirmReset').click(function() {
+					$.get('\/change');
+					window.location = window.location.origin + "/logout"
+				});
+			}
 	body
 		nav.navbar.navbar-default.navbar-static.navbar-inverse(role='navigation')
 			.container-fluid
@@ -40,7 +52,19 @@ html
 									span.caret
 								ul.dropdown-menu(role='menu')
 									li
-										a(href='#' title="Not yet") Reset				
+										a(id='resetPass' href='javascript:{}' onclick='resetPass()') Reset Password	
 									li
 										a(href='/logout') Logout
+		#passModal(role='dialog').modal.fade
+			.modal-dialog
+				.modal-content
+					.modal-header
+						h4.modal-title Password Reset
+					.modal-body
+						p.
+							Are you sure you wish to change your password? If so, click the "Change Password" button below and you will be sent an email with further details.
+							If not, click "Cancel".
+					.modal-footer
+						button(type="button")#confirmReset.btn.btn-danger Change Password
+						button(type="button" data-dismiss="modal").btn.btn-default Cancel
 		block body
