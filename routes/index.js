@@ -15,7 +15,7 @@ router.get('/', function(req, res) {
     res.redirect('/graph');
 });
 
-/*
+
 router.get('/register', function(req, res) {
     res.render('register', {
         title: 'Register',
@@ -23,17 +23,29 @@ router.get('/register', function(req, res) {
     });
 });
 
+function authenticateEmail(email) {
+    return email.match("@thacher\.org$");
+}
 
 router.post('/register', function(req, res) {
 
+    var firstname = req.body.firstname;
+    var lastname = req.body.lastname;
     var username = req.body.username;
     var password = req.body.password;
 
 
-    if (!username || !password) {
+    if (!username || !password || !firstname || !lastname) {
         return res.render('register', {
             title: 'Register',
-            error: 'Email and password required.'
+            error: 'All fields are required.'
+        });
+    }
+
+    if(!authenticateEmail(username)) {
+         return res.render('register', {
+            title: 'Register',
+            error: 'Must be a Thacher School email address.'
         });
     }
 
@@ -41,9 +53,9 @@ router.post('/register', function(req, res) {
         if (err) throw err;
 
         app.createAccount({
-            givenName: 'John',
-            surname: 'Smith',
-            username: username,
+            givenName: firstname,
+            surname: lastname,
+            username: username.split("@")[0],
             email: username,
             password: password,
         }, function(err, createdAccount) {
@@ -53,16 +65,14 @@ router.post('/register', function(req, res) {
                     error: err.userMessage
                 });
             } else {
-                passport.authenticate('stormpath')(req, res, function() {
-                    return res.redirect('/graph');
-                });
+                return res.redirect('/login?' + querystring.stringify({suc: '/graph'}));
             }
         });
 
     });
 
 });
-*/
+
 
 
 router.get('/login', function(req, res) {
