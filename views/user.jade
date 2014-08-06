@@ -25,8 +25,10 @@ block body
 				$('#user-data > tbody:last').append(rowString.supplant({ID: nodes[0].id, Name: nodes[0].data.name, Gender: nodes[0].data.gender, Year: nodes[0].data.year }));
 
 				var relTable = $('#rels-data > tbody:last');
+				console.log(nodes.slice(1));
 				for(var i in nodes.slice(1)) {
-					relTable.append(rowString.supplant({ID: nodes[i].id, Name: nodes[i].data.name, Gender: nodes[i].data.gender, Year: nodes[i].data.year }))
+					console.log(i);
+					relTable.append(rowString.supplant({ID: nodes.slice(1)[i].id, Name: nodes.slice(1)[i].data.name, Gender: nodes.slice(1)[i].data.gender, Year: nodes.slice(1)[i].data.year }))
 				}
 
 				$(".data-row").click(function() {
