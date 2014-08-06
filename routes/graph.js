@@ -6,7 +6,17 @@ var db = new neo4j.GraphDatabase(
 	process.env['GRAPHENEDB_URL'] ||
 	'http://localhost:7474'
 );
+var stormpath = require('stormpath');
+var apiKey = new stormpath.ApiKey(
+	process.env['STORMPATH_API_KEY_ID'],
+	process.env['STORMPATH_API_KEY_SECRET']
+);
+var spClient = new stormpath.Client({
+	apiKey: apiKey
+});
 var querystring = require('querystring');
+
+var years = [2013, 2014, 2015, 2016, 2017, 2018]
 
 function getIndexForID(list, id) {
 	for (var i in list) {
@@ -127,33 +137,23 @@ router.get('/users/:id', function(req, res) {
 		}));
 	}
 
-	db.getNodeById(Number(req.params.id), function(err, user) {
-		if (err) throw err;
-		user.getRelationshipNodes('RELATIONS_WITH', function(err, resR) {
-			if (err) throw err;
-			var reqRelations = [];
-
-			for (var i in resR) {
-				var temp = {
-					id: resR[i].id,
-					data: resR[i].data
-				}
-
-				reqRelations.push(temp);
+	spClient.getAccount(req.user.href, function(err, acc) {
+		acc.getGroups(function(err, groups) {
+			var mod = false;
+			for (var i in groups.items) {
+				if (groups.items[i].name === 'Mod')
+					mod = true;
 			}
-
 			res.render('user', {
-				title: user.data.name,
+				title: 'User Profile | Index ' + req.params.id,
 				user: req.user,
-				dataUser: {
-					id: user.id,
-					data: user.data
-				},
-				dataRelations: reqRelations
+				mod: mod,
+				id: Number(req.params.id),
 			});
-		})
+		});
 	});
 });
+
 
 router.get('/class/:year', function(req, res) {
 	if (!req.user || req.user.status !== 'ENABLED') {
@@ -162,47 +162,13 @@ router.get('/class/:year', function(req, res) {
 		}));
 	}
 
-	var members = []
-
-	var queryN = [
-		'MATCH (n)',
-		'WHERE n.year = { year }',
-		'RETURN n'
-	].join('\n');
-
-	var years = [
-		'MATCH (n)',
-		'WHERE NOT n.year={ year }',
-		'RETURN DISTINCT n.year AS y',
-		'ORDER BY n.year'
-	].join('\n');
-
-	var params = {
-		year: Number(req.params.year)
-	}
-	db.query(queryN, params, function(err, resN) {
-		if (err) throw err;
-		for (var i in resN) {
-			members.push({
-				id: resN[i]['n'].id,
-				data: resN[i]['n'].data
-			});
-		}
-		db.query(years, params, function(err, resY) {
-			if (err) throw err;
-			var oYear = [];
-			for (var i in resY) {
-				oYear.push(resY[i]['y']);
-			}
-			res.render('class', {
-				title: "Class of " + req.params.year,
-				user: req.user,
-				year: Number(req.params.year),
-				classMembers: members,
-				otherYears: oYear
-			});
-		});
+	res.render('class', {
+		title: "Class of " + req.params.year,
+		user: req.user,
+		year: Number(req.params.year),
+		otherYears: years.filter(function (elem) {return elem != Number(req.params.year)}),
 	});
+
 });
 
 router.get('/data/class/:year', function(req, res) {
@@ -250,6 +216,52 @@ router.get('/data/class/:year', function(req, res) {
 		}
 		res.send(jsonRes);
 	});
+});
+
+router.get('/data/search', function(req, res) {
+	if (!req.user || req.user.status !== 'ENABLED') {
+		return res.redirect('/login?' + querystring.stringify({
+			suc: '/graph' + req.path
+		}));
+	}
+
+	var query = [
+		'MATCH (n)',
+		'WHERE id(n) = { excludeID }',
+		'WITH n',
+		'MATCH (a)',
+		'WHERE NOT a = n',
+		'AND NOT (a)--(n)',
+		'AND a.name =~ { nameRegex }',
+		'RETURN a'
+	]
+
+	var params = {
+		excludeID: Number(req.query.excludeID),
+		nameRegex: ".*" + req.query.query + ".*"
+	}
+
+	if (req.query.gRefine) {
+		params['matchGender'] = req.query.gRefine;
+		query.splice(7, 0, 'AND a.gender = { matchGender }')
+	}
+
+	if (req.query.yRefine) {
+		params['matchYear'] = Number(req.query.yRefine);
+		query.splice(7, 0, 'AND a.year = { matchYear }')
+	}
+
+	query = query.join('\n');
+
+	db.query(query, params, function(err, resN) {
+		jsonRes = [];
+		if (err) throw err;
+		for (var i in resN)
+			jsonRes.push(resN[i]['a'].data)
+
+		return res.send(jsonRes);
+	});
+
 });
 
 module.exports = router;

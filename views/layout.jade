@@ -26,7 +26,7 @@ html
 				});
 			}
 	body
-		nav.navbar.navbar-default.navbar-static.navbar-inverse(role='navigation')
+		nav.navbar.navbar-default.navbar-static.navbar-inverse.navbar-fixed-top(role='navigation')
 			.container-fluid
 				.navbar-header
 					button.navbar-toggle(type='button', data-toggle='collapse', data-target='#navbar-collapse')
@@ -45,6 +45,17 @@ html
 								ul.dropdown-menu(role='menu')
 									li
 										a(href='/') Main Graph
+						if mod
+							ul.nav.navbar-nav
+								li.dropdown
+									a.dropdown-toggle(href='#', data-toggle='dropdown')
+										| Mod Powers
+										span.caret
+									ul.dropdown-menu(role='menu')
+										li
+											a(onclick="$('#relModal').modal();") Add Relationship
+										li
+											a(onclick="$('#delModal').modal();") Request Relationship Deletion
 						ul.nav.navbar-nav.navbar-right
 							li.dropdown
 								a.dropdown-toggle(href='#', data-toggle='dropdown')
@@ -67,4 +78,34 @@ html
 					.modal-footer
 						button(type="button")#confirmReset.btn.btn-danger Change Password
 						button(type="button" data-dismiss="modal").btn.btn-default Cancel
+		if mod				
+			#relModal(role='dialog').modal.fade
+				.modal-dialog
+					.modal-content
+						.modal-header
+							h4.modal-title Add Relationship
+						.modal-body
+							form(role='form')
+								.form-group
+									select(placeholder='Select a name')#select-user.form-control
+								.form-group
+									select(placeholder='Refine search by grade')#select-grade.form-control
+								.form-group
+									select(placeholder='Refine search by gender')#select-gender.form-control
+						.modal-footer
+							button(type="button" data-dismiss='modal')#confirmAdd.btn.btn-danger Add Relationship
+							button(type="button" data-dismiss="modal").btn.btn-default Cancel
+			#delModal(role='dialog').modal.fade
+				.modal-dialog
+					.modal-content
+						.modal-header
+							h4.modal-title Request Relationship Deletion
+						.modal-body
+							form(role='form')
+								.form-group
+									select(placeholder='Select a relationship')#select-rel.form-control
+						.modal-footer
+							button(type="button" data-dismiss="modal").btn.btn-default Mod Power Not Yet Implemented
+							//button(type="button" data-dismiss='modal')#confirmAdd.btn.btn-danger Request Deletion
+							//button(type="button" data-dismiss="modal").btn.btn-default Cancel
 		block body

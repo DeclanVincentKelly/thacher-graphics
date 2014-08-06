@@ -8,15 +8,35 @@ block body
 		script(src='/js/d3-tip.js')
 		script(src='/js/d3-graph.js')
 		script(src='/js/jquery.tablesorter.min.js')
-		script(type='text/javascript' async).
-			graph('/graph/data/users/#{dataUser.id}', (3/10));
-			jQuery(document).ready(function($) {
+		script(type='text/javascript' defer).
+			String.prototype.supplant = function (o) {
+				return this.replace(/{([^{}]*)}/g,
+					function (a, b) {
+						var r = o[b];
+						return typeof r === 'string' || typeof r === 'number' ? r : a;
+					}
+				);
+			};
+
+			var loadTables = function() {
+				document.title = document.title.slice(0, document.title.indexOf('|') + 2) + nodes[0].data.name;
+				var rowString = '<tr class="data-row" href="/graph/users/{ID}"><td>{ID}</td><td>{Name}</td><td>{Gender}</td><td><a href="/graph/class/{Year}">{Year}</a></td></tr>';
+				
+				$('#user-data > tbody:last').append(rowString.supplant({ID: nodes[0].id, Name: nodes[0].data.name, Gender: nodes[0].data.gender, Year: nodes[0].data.year }));
+
+				var relTable = $('#rels-data > tbody:last');
+				for(var i in nodes.slice(1)) {
+					relTable.append(rowString.supplant({ID: nodes[i].id, Name: nodes[i].data.name, Gender: nodes[i].data.gender, Year: nodes[i].data.year }))
+				}
+
 				$(".data-row").click(function() {
 					window.document.location = $(this).attr("href");
 				});
 				$("#rels-data").tablesorter();
-				$('#graph').focus();
-			});
+			}
+
+			graph('/graph/data/users/#{id}', (3/10), loadTables);
+
 		h2 User
 		table#user-data.table.table-hover
 			thead
@@ -26,12 +46,6 @@ block body
 					th Gender
 					th Grade
 			tbody
-				tr
-					td #{dataUser.id}
-					td #{dataUser.data.name}
-					td #{dataUser.data.gender}
-					td 
-						a(href="/graph/class/#{dataUser.data.year}") #{dataUser.data.year}
 		br
 		h2 Relationships
 		table#rels-data.table.table-hover
@@ -42,11 +56,3 @@ block body
 					th Gender
 					th Grade
 			tbody
-				for rel in dataRelations
-					tr(href="/graph/users/#{rel.id}").data-row
-						td #{rel.id}
-						td #{rel.data.name}
-						td #{rel.data.gender}
-						td 
-							a(href="/graph/class/#{rel.data.year}") #{rel.data.year}
-

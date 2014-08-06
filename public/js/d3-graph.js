@@ -1,3 +1,4 @@
+var nodes, pageID;
 var waitForFinalEvent = (function() {
 	var timers = {};
 	return function(callback, ms, uniqueId) {
@@ -40,10 +41,15 @@ var updateWindow = function(ratio, svg, force, graph, rect) {
 	}
 }
 
-graph = function(queryURL, ratio) {
+graph = function(queryURL, ratio, callback) {
 
 	d3.json(queryURL, function(err, json) {
 		if (err) throw err;
+		nodes = json.nodes;
+		pageID = json.nodes[0].id;
+		if(callback)
+			callback();
+
 		var height, width;
 		if (ratio) {
 			width = $('.container').outerWidth();
@@ -105,7 +111,7 @@ graph = function(queryURL, ratio) {
 				return "http://" + window.location.host + "/graph/users/" + d.id
 			})
 			.append("circle")
-			.attr("class", "node") //
+			.attr("class", "node")
 			.attr("r", function(d) {
 				return radius(d);
 			})

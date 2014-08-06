@@ -8,15 +8,29 @@ block body
 		script(src='/js/d3-tip.js')
 		script(src='/js/d3-graph.js')
 		script(src='/js/jquery.tablesorter.min.js')
-		script(type='text/javascript' async).
-			graph('/graph/data/class/#{year}', (4/10));
-			jQuery(document).ready(function($) {
+		script(type='text/javascript' defer).
+			String.prototype.supplant = function (o) {
+				return this.replace(/{([^{}]*)}/g,
+					function (a, b) {
+						var r = o[b];
+						return typeof r === 'string' || typeof r === 'number' ? r : a;
+					}
+				);
+			};
+
+			var loadTables = function() {
+				var rowString = '<tr class="data-row" href="/graph/users/{ID}"><td>{ID}</td><td>{Name}</td><td>{Gender}</td><td><a href="/graph/class/{Year}">{Year}</a></td></tr>';
+				var relTable = $('#class-data > tbody:last');
+				for(var i in nodes) {
+					relTable.append(rowString.supplant({ID: nodes[i].id, Name: nodes[i].data.name, Gender: nodes[i].data.gender, Year: nodes[i].data.year }))
+				}
+				$("#class-data").tablesorter();
 				$(".data-row").click(function() {
 					window.document.location = $(this).attr("href");
 				});
-				$("#class-data").tablesorter();
-				$('#graph').focus();
-			});
+			}
+
+			graph('/graph/data/class/#{year}', (4/10), loadTables);
 		ul.nav.nav-tabs
 			li.active
 				a(href="#") #{year}
@@ -31,10 +45,3 @@ block body
 					th Gender
 					th Grade
 			tbody
-				for mem in classMembers
-					tr(href="/graph/users/#{mem.id}").data-row
-						td #{mem.id}
-						td #{mem.data.name}
-						td #{mem.data.gender}
-						td 
-							a(href="/graph/class/#{mem.data.year}") #{mem.data.year}
