@@ -38,7 +38,14 @@ graph = function(config) {
 			.attr('width', width)
 			.attr('height', height)
 			.style('fill', 'none')
-			.style('pointer-events', 'all');
+			.style('pointer-events', 'all')
+			.on('click', function() {
+				if(toggle != 0) {
+					node.style("opacity", 1);
+					link.style("opacity", 1);
+					toggle = 0;
+				}
+			});
 
 		var vis = graph.append('svg:g');
 
@@ -201,7 +208,7 @@ graph = function(config) {
 					return neighboring(d, o) | neighboring(o, d) ? 1 : 0.1;
 				});
 				link.style("opacity", function(o) {
-					return d.index == o.source.index | d.index == o.target.index ? 1 : 0.1;
+					return d.index == o.source.index | d.index == o.target.index ? 1 : 0;
 				});
 				toggle = 1;
 			} else {

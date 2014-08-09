@@ -46,6 +46,8 @@ html
 								ul.dropdown-menu(role='menu')
 									li
 										a(href='/') Main Graph
+									li
+										a(onclick="$('#helpModal').modal();") Graph Help
 						if mod
 							ul.nav.navbar-nav
 								li.dropdown
@@ -79,6 +81,20 @@ html
 					.modal-footer
 						button(type="button")#confirmReset.btn.btn-danger Change Password
 						button(type="button" data-dismiss="modal").btn.btn-default Cancel
+		#helpModal(role='dialog').modal.fade
+			.modal-dialog
+				.modal-content
+					.modal-header
+						h4.modal-title Map Interactivity Help
+					.modal-body
+						p The interactive map has a few features which can be accessed with different behaviors from the mouse.
+							ul
+								li By clicking on a node, you will fade all other nodes except for those that are connected to the original.
+								li By double clicking a node, you will travel to that person's page.
+								li Dragging a node results in the node following the mouse.
+								li Zooming is supported via scrolling, and panning is supported as long as you don't start panning on a node.
+					.modal-footer
+						button(type="button" data-dismiss="modal").btn.btn-default Close
 		if mod				
 			#relModal(role='dialog').modal.fade
 				.modal-dialog
