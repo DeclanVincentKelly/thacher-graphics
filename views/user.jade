@@ -9,14 +9,6 @@ block body
 		script(src='/js/d3-graph.js')
 		script(src='/js/jquery.tablesorter.min.js')
 		script(type='text/javascript' defer).
-			String.prototype.supplant = function (o) {
-				return this.replace(/{([^{}]*)}/g,
-					function (a, b) {
-						var r = o[b];
-						return typeof r === 'string' || typeof r === 'number' ? r : a;
-					}
-				);
-			};
 
 			var loadTables = function() {
 				document.title = document.title.slice(0, document.title.indexOf('|') + 2) + nodes[0].data.name;
@@ -25,9 +17,7 @@ block body
 				$('#user-data > tbody:last').append(rowString.supplant({ID: nodes[0].id, Name: nodes[0].data.name, Gender: nodes[0].data.gender, Year: nodes[0].data.year }));
 
 				var relTable = $('#rels-data > tbody:last');
-				console.log(nodes.slice(1));
 				for(var i in nodes.slice(1)) {
-					console.log(i);
 					relTable.append(rowString.supplant({ID: nodes.slice(1)[i].id, Name: nodes.slice(1)[i].data.name, Gender: nodes.slice(1)[i].data.gender, Year: nodes.slice(1)[i].data.year }))
 				}
 
@@ -37,7 +27,14 @@ block body
 				$("#rels-data").tablesorter();
 			}
 
-			graph('/graph/data/users/#{id}', (3/10), loadTables);
+			var resize = function(width, height) {
+				width = $('.container').outerWidth();
+				height = width * (4 / 10);
+
+				return [width, height];
+			}
+
+			graph({queryURL: '/graph/data/users/#{id}', onDataLoad: loadTables, onWindowResize: resize});
 
 		h2 User
 		table#user-data.table.table-hover

@@ -9,15 +9,6 @@ block body
 		script(src='/js/d3-graph.js')
 		script(src='/js/jquery.tablesorter.min.js')
 		script(type='text/javascript' defer).
-			String.prototype.supplant = function (o) {
-				return this.replace(/{([^{}]*)}/g,
-					function (a, b) {
-						var r = o[b];
-						return typeof r === 'string' || typeof r === 'number' ? r : a;
-					}
-				);
-			};
-
 			var loadTables = function() {
 				var rowString = '<tr class="data-row" href="/graph/users/{ID}"><td>{ID}</td><td>{Name}</td><td>{Gender}</td><td><a href="/graph/class/{Year}">{Year}</a></td></tr>';
 				var relTable = $('#class-data > tbody:last');
@@ -30,7 +21,14 @@ block body
 				});
 			}
 
-			graph('/graph/data/class/#{year}', (4/10), loadTables);
+			var resize = function(width, height) {
+				width = $('.container').outerWidth();
+				height = width * (4 / 10);
+
+				return [width, height];
+			}
+
+			graph({queryURL: '/graph/data/class/#{year}', onDataLoad: loadTables, onWindowResize: resize});
 		ul.nav.nav-tabs
 			li.active
 				a(href="#") #{year}
