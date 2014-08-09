@@ -57,7 +57,8 @@ graph = function(config) {
 
 		var drag = d3.behavior.drag()
 			.on('dragstart', function() {
-				d3.event.sourceEvent.stopPropagation()
+				d3.event.sourceEvent.stopPropagation();
+				force.resume();
 			})
 			.on('drag', dragMove);
 
@@ -208,7 +209,7 @@ graph = function(config) {
 					return neighboring(d, o) | neighboring(o, d) ? 1 : 0.1;
 				});
 				link.style("opacity", function(o) {
-					return d.index == o.source.index | d.index == o.target.index ? 1 : 0;
+					return d.index == o.source.index | d.index == o.target.index ? 1 : 0.1;
 				});
 				toggle = 1;
 			} else {
