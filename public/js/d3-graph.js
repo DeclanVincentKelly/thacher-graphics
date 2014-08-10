@@ -55,12 +55,12 @@ graph = function(config) {
 			.gravity(1.4)
 			.size([width, height]);
 
-		var drag = d3.behavior.drag()
+		var drag = force.drag()
 			.on('dragstart', function() {
 				d3.event.sourceEvent.stopPropagation();
-				force.resume();
-			})
-			.on('drag', dragMove);
+				if(force.alpha() == 0)
+					force.resume();
+			});
 
 		force
 			.nodes(nodes)
@@ -91,12 +91,13 @@ graph = function(config) {
 			.style("fill", function(d) {
 				return color(Number(d.data.year) - 2012);
 			})
-			.on('mouseover', tip.show)
-			.on('mouseout', tip.hide)
-			.on('click', connectedNodes)
-			.on('dblclick', function(d) {
-				window.location = "http://" + window.location.host + "/graph/users/" + d.id
+			.on('mouseover', function(d, i) {
+				if(d3.select(this).style('opacity') == "1") {
+					tip.show.call(this, d, i);
+				}
 			})
+			.on('mouseout', tip.hide)
+			.on('click', clickRoute)
 			.call(drag);
 
 		var maxRadius = 0;
@@ -192,30 +193,27 @@ graph = function(config) {
 			height = dim[1];
 		}
 
-		function dragMove(d) {
-			d3.select(this)
-				.attr("cx", d.x = d3.event.x)
-				.attr("cy", d.y = d3.event.y);
-		}
-
 		function neighboring(a, b) {
 			return linkedByIndex[a.index + "," + b.index];
 		}
 
-		function connectedNodes() {
-			if (toggle == 0) {
-				d = d3.select(this).node().__data__;
-				node.style("opacity", function(o) {
-					return neighboring(d, o) | neighboring(o, d) ? 1 : 0.1;
-				});
-				link.style("opacity", function(o) {
-					return d.index == o.source.index | d.index == o.target.index ? 1 : 0.1;
-				});
-				toggle = 1;
+		function clickRoute(d) {
+			if(!d3.event.shiftKey) {
+				if (toggle == 0 || d3.select(this).style('opacity') == "1") {
+					node.style("opacity", function(o) {
+						return neighboring(d, o) | neighboring(o, d) ? 1 : 0.1;
+					});
+					link.style("opacity", function(o) {
+						return d.index == o.source.index | d.index == o.target.index ? 1 : 0;
+					});
+					toggle = 1;
+				} else {
+					node.style("opacity", 1);
+					link.style("opacity", 1);
+					toggle = 0;
+				}
 			} else {
-				node.style("opacity", 1);
-				link.style("opacity", 1);
-				toggle = 0;
+				window.location = "http://" + window.location.host + "/graph/users/" + d.id
 			}
 		}
 

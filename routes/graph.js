@@ -6,14 +6,6 @@ var db = new neo4j.GraphDatabase(
 	process.env['GRAPHENEDB_URL'] ||
 	'http://localhost:7474'
 );
-var stormpath = require('stormpath');
-var apiKey = new stormpath.ApiKey(
-	process.env['STORMPATH_API_KEY_ID'],
-	process.env['STORMPATH_API_KEY_SECRET']
-);
-var spClient = new stormpath.Client({
-	apiKey: apiKey
-});
 var querystring = require('querystring');
 
 var years = [2013, 2014, 2015, 2016, 2017, 2018]
@@ -137,20 +129,10 @@ router.get('/users/:id', function(req, res) {
 		}));
 	}
 
-	spClient.getAccount(req.user.href, function(err, acc) {
-		acc.getGroups(function(err, groups) {
-			var mod = false;
-			for (var i in groups.items) {
-				if (groups.items[i].name === 'Mod')
-					mod = true;
-			}
-			res.render('user', {
-				title: 'User Profile | Index ' + req.params.id,
-				user: req.user,
-				mod: mod,
-				id: Number(req.params.id),
-			});
-		});
+	res.render('user', {
+		title: 'User Profile | Index ' + req.params.id,
+		user: req.user,
+		id: Number(req.params.id),
 	});
 });
 
@@ -166,7 +148,9 @@ router.get('/class/:year', function(req, res) {
 		title: "Class of " + req.params.year,
 		user: req.user,
 		year: Number(req.params.year),
-		otherYears: years.filter(function (elem) {return elem != Number(req.params.year)}),
+		otherYears: years.filter(function(elem) {
+			return elem != Number(req.params.year)
+		}),
 	});
 
 });

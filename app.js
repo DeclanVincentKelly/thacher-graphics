@@ -8,6 +8,7 @@ var passport = require('passport');
 var StormpathStrategy = require('passport-stormpath');
 var session = require('express-session');
 var flash = require('connect-flash');
+var stormpath = require('stormpath');
 
 var routes = require('./routes');
 var graph = require('./routes/graph.js')
@@ -16,6 +17,13 @@ var strategy = new StormpathStrategy({
     apiKeyId: process.env["STORMPATH_API_KEY_ID"],
     apiKeySecret: process.env['STORMPATH_API_KEY_SECRET'],
     appHref: process.env["STORMPATH_URL"]
+});
+var apiKey = new stormpath.ApiKey(
+    process.env['STORMPATH_API_KEY_ID'],
+    process.env['STORMPATH_API_KEY_SECRET']
+);
+var spClient = new stormpath.Client({
+    apiKey: apiKey
 });
 //'Finished requires'
 
@@ -39,7 +47,21 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({ secret: process.env.EXPRESS_SECRET, key: 'sid', cookie: {secure: false} }));
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(flash());
+app.use(flash())
+app.use(function(req, res, next) {
+    if(req.user) {
+        spClient.getAccount(req.user.href, function(err, acc) {
+            acc.getGroups(function(err, groups) {
+                req.user.groups = {};
+                for(var i in groups.items)
+                    req.user.groups[groups.items[i].name] = groups.items[i];
+                next();
+            });
+        });
+    } else {
+        next();
+    }
+});
 
 //'Route setup'
 app.use('/', routes);

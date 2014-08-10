@@ -48,7 +48,7 @@ html
 										a(href='/') Main Graph
 									li
 										a(onclick="$('#helpModal').modal();") Graph Help
-						if mod
+						if user && user.groups.Mod && false
 							ul.nav.navbar-nav
 								li.dropdown
 									a.dropdown-toggle(href='#', data-toggle='dropdown')
@@ -90,12 +90,15 @@ html
 						p The interactive map has a few features which can be accessed with different behaviors from the mouse.
 							ul
 								li By clicking on a node, you will fade all other nodes except for those that are connected to the original.
-								li By double clicking a node, you will travel to that person's page.
+								li By shift + clicking a node, you will travel to that person's page.
 								li Dragging a node results in the node following the mouse.
 								li Zooming is supported via scrolling, and panning is supported as long as you don't start panning on a node.
 					.modal-footer
 						button(type="button" data-dismiss="modal").btn.btn-default Close
-		if mod				
+		if user && user.groups.Mod && false
+			script(src='/js/jquery.select2.min.js')
+			link(href='/css/select2.css', rel='stylesheet')
+			link(href='/css/select2-bootstrap.css', rel='stylesheet')
 			#relModal(role='dialog').modal.fade
 				.modal-dialog
 					.modal-content
@@ -104,11 +107,11 @@ html
 						.modal-body
 							form(role='form')
 								.form-group
-									select(placeholder='Select a name')#select-user.form-control
+									select#select-user.form-control
 								.form-group
-									select(placeholder='Refine search by grade')#select-grade.form-control
+									select#select-grade.form-control
 								.form-group
-									select(placeholder='Refine search by gender')#select-gender.form-control
+									select#select-gender.form-control
 						.modal-footer
 							button(type="button" data-dismiss='modal')#confirmAdd.btn.btn-danger Add Relationship
 							button(type="button" data-dismiss="modal").btn.btn-default Cancel
@@ -120,9 +123,10 @@ html
 						.modal-body
 							form(role='form')
 								.form-group
-									select(placeholder='Select a relationship')#select-rel.form-control
+									select#select-rel.form-control
 						.modal-footer
 							button(type="button" data-dismiss="modal").btn.btn-default Mod Power Not Yet Implemented
 							//button(type="button" data-dismiss='modal')#confirmAdd.btn.btn-danger Request Deletion
 							//button(type="button" data-dismiss="modal").btn.btn-default Cancel
+			script(src='/js/mod-power-select.js')
 		block body
