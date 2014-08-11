@@ -59,7 +59,7 @@ graph = function(config) {
 			.on('dragstart', function() {
 				d3.event.sourceEvent.stopPropagation();
 				if(force.alpha() == 0)
-					force.resume();
+					force.alpha(.01);
 			});
 
 		force
