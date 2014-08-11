@@ -137,6 +137,8 @@ html
 						$('#relModal').modal('hide');
 						$('#relModal input').select2('data', null);
 						$('#confirmAdd').toggleClass('disabled');
+						for(var i in searchUser.cross.dimensions)
+							searchUser.cross.dimensions[i].filterAll();
 						setTimeout(function() {$('#relModal #relModalTitle').text('Select Second Person');}, 250);
 						setTimeout(function() {$('#relModal').modal('show');}, 1000);
 						state++;
@@ -145,6 +147,8 @@ html
 						$('#relModal').modal('hide');
 						$('#relModal input').select2('data', null);
 						$('#confirmAdd').toggleClass('disabled');
+						for(var i in searchUser.cross.dimensions)
+							searchUser.cross.dimensions[i].filterAll();
 						$('#relModal #relModalTitle').text('Select First Person');
 						$('#relModal input').select2('data', null);
 						$('#relConfirmModal').modal();
@@ -156,6 +160,8 @@ html
 				$('#cancelAdd').click(function() {
 					ids = {a: 0, b: 0}
 					$('#relModal input').select2('data', null);
+					for(var i in searchUser.cross.dimensions)
+						searchUser.cross.dimensions[i].filterAll();
 				});
 
 		block body
