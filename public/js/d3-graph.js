@@ -3,7 +3,6 @@ graph = function(config) {
 	d3.json(config.queryURL, function(err, json) {
 		if (err) throw err;
 
-
 		nodes = json.nodes;
 		links = json.links;
 		if (config.onDataLoad)
@@ -14,6 +13,7 @@ graph = function(config) {
 		for (i = 0; i < nodes.length; i++) {
 			linkedByIndex[i + "," + i] = 1;
 		};
+		var selected = [];
 
 		var height, width;
 		updateWidthHeight();
@@ -32,27 +32,31 @@ graph = function(config) {
 
 		var graph = svg.append('g')
 			.call(tip)
-			.call(d3.behavior.zoom().scaleExtent([.3, 3]).on("zoom", zoom)).on('dblclick.zoom', null);
+			.call(d3.behavior.zoom().scaleExtent([.2, 4]).on("zoom", zoom));
 
+
+		log= [];
 		var rect = graph.append('rect')
 			.attr('width', width)
 			.attr('height', height)
 			.style('fill', 'none')
 			.style('pointer-events', 'all')
 			.on('click', function() {
-				if(toggle != 0) {
+				if(toggle != 0 && !d3.event.defaultPrevented) {
 					node.style("opacity", 1);
 					link.style("opacity", 1);
+					link.style("stroke", "#C0C0C0");
 					toggle = 0;
+					selected.clear();
 				}
 			});
 
 		var vis = graph.append('svg:g');
 
 		var force = d3.layout.force()
-			.linkDistance(30)
+			.linkDistance(40)
 			.charge(-800)
-			.gravity(1.4)
+			.gravity(0.6)
 			.size([width, height]);
 
 		var drag = force.drag()
@@ -60,7 +64,8 @@ graph = function(config) {
 				d3.event.sourceEvent.stopPropagation();
 				if(force.alpha() == 0)
 					force.alpha(.01);
-			});
+			})
+			.on('dragend', function() {d3.event.sourceEvent.stopPropagation();});
 
 		force
 			.nodes(nodes)
@@ -92,11 +97,15 @@ graph = function(config) {
 				return color(Number(d.data.year) - 2012);
 			})
 			.on('mouseover', function(d, i) {
+				//d.fixed = true;
 				if(d3.select(this).style('opacity') == "1") {
 					tip.show.call(this, d, i);
 				}
 			})
-			.on('mouseout', tip.hide)
+			.on('mouseout', function(d, i) {
+				//d.fixed = false;
+				tip.hide.call(this, d, i);
+			})
 			.on('click', clickRoute)
 			.call(drag);
 
@@ -197,24 +206,56 @@ graph = function(config) {
 			return linkedByIndex[a.index + "," + b.index];
 		}
 
+		function neighbors(a, b) {
+			return neighboring(a, b) | neighboring(b, a);
+		}
+
+		function neighboringSelected(a) {
+			for(var i = 0; i < selected.length; i++)
+				if(neighbors(selected[i], a))
+					return true;
+			return false;
+		}
+
+		function updateSelection(d) {
+			node.style("opacity", function(o) {
+				return (neighbors(d, o) || selected.indexOf(o) != -1) ? 1 : 0.1;
+			});
+			link.style("opacity", function(o) {
+				return ((selected.indexOf(o.source) != -1 && selected.indexOf(o.target) != -1) || o.source.index == d.index || o.target.index == d.index) ? 1 : 0;
+			});
+			link.style("stroke", function(o) {
+				return (selected.indexOf(o.source) != -1 && selected.indexOf(o.target) != -1) ? "#000" : '#C0C0C0';
+			});
+		}
+
 		function clickRoute(d) {
-			if(!d3.event.shiftKey) {
-				if (toggle == 0 || d3.select(this).style('opacity') == "1") {
-					node.style("opacity", function(o) {
-						return neighboring(d, o) | neighboring(o, d) ? 1 : 0.1;
-					});
-					link.style("opacity", function(o) {
-						return d.index == o.source.index | d.index == o.target.index ? 1 : 0;
-					});
+			if(!d3.event.shiftKey && !d3.event.ctrlKey) {
+				if (toggle == 0 || (selected.length < 2 && neighboringSelected(d)) || (selected.indexOf(d) > -1) ) {
+					updateSelection(d);
 					toggle = 1;
-				} else {
+
+					if(selected.length < 2)
+						selected[0] = d;
+					else
+						selected.push(d);
+
+				} else if ( toggle == 1 && !( !(selected.length < 2) && neighboringSelected(d) ) ) {
 					node.style("opacity", 1);
 					link.style("opacity", 1);
+					link.style("stroke", "#C0C0C0");
 					toggle = 0;
+					selected.clear();
+				}
+			} else if (!d3.event.ctrlKey) {
+				if (toggle == 1 || neighboringSelected(d)) {
+					selected.push(d);
+					updateSelection(d);
 				}
 			} else {
 				window.location = "http://" + window.location.host + "/graph/users/" + d.id
 			}
+			console.log(d3.event);
 		}
 
 		$(window).resize(updateWindow);

@@ -16,7 +16,7 @@ searchUser = function(parentID) {
 			minimumInputLength: 0,
 			query: function(query) {
 				nameDim.filterFunction(function(d) {
-					return (new RegExp(query.term)).test(d);
+					return (new RegExp(query.term, "ig")).test(d);
 				})
 				query.callback({
 					more: false,

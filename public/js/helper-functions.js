@@ -11,11 +11,23 @@ var waitForFinalEvent = (function() {
 	};
 })();
 
-String.prototype.supplant = function(o) {
-	return this.replace(/{([^{}]*)}/g,
-		function(a, b) {
-			var r = o[b];
-			return typeof r === 'string' || typeof r === 'number' ? r : a;
+Object.defineProperty(String.prototype, "supplant", {
+	value: function(o) {
+		return this.replace(/{([^{}]*)}/g,
+			function(a, b) {
+				var r = o[b];
+				return typeof r === 'string' || typeof r === 'number' ? r : a;
+			}
+		);
+	},
+	enumerable: false
+});
+
+Object.defineProperty(Array.prototype, "clear", {
+	value: function() {
+		while (this.length > 0) {
+			this.pop();
 		}
-	);
-};
+	},
+	enumerable: false
+});

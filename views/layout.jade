@@ -126,31 +126,27 @@ html
 				var ids = {a: 0, b: 0}
 				var state = 0;
 				var user = $('#select-user');
-				$('#relModal #select-user').on('select2-selecting', function (e) {
+				$('#relModal #select-user').on('change', function (e) {
+					console.log(e);
 					if(!user.val())
-						$('#confirmAdd').toggleClass('disabled');
+						$('#confirmAdd').addClass('disabled');
+					else
+						$('#confirmAdd').removeClass('disabled');
 				});
 
 				$('#relModal #confirmAdd').click(function (e) {
 					if(state == 0) {
 						ids['a'] = +user.val();
 						$('#relModal').modal('hide');
-						$('#relModal input').select2('data', null);
-						$('#confirmAdd').toggleClass('disabled');
-						for(var i in searchUser.cross.dimensions)
-							searchUser.cross.dimensions[i].filterAll();
+						resetAddModal();
 						setTimeout(function() {$('#relModal #relModalTitle').text('Select Second Person');}, 250);
 						setTimeout(function() {$('#relModal').modal('show');}, 1000);
 						state++;
 					} else {
 						ids['b'] = +user.val();
 						$('#relModal').modal('hide');
-						$('#relModal input').select2('data', null);
-						$('#confirmAdd').toggleClass('disabled');
-						for(var i in searchUser.cross.dimensions)
-							searchUser.cross.dimensions[i].filterAll();
-						$('#relModal #relModalTitle').text('Select First Person');
-						$('#relModal input').select2('data', null);
+						resetAddModal();
+						
 						$('#relConfirmModal').modal();
 						state = 0;
 						$.post("/graph/data/users", ids);
@@ -158,10 +154,17 @@ html
 				});
 
 				$('#cancelAdd').click(function() {
-					ids = {a: 0, b: 0}
-					$('#relModal input').select2('data', null);
+					ids = {a: 0, b: 0};
+					state = 0;
+					resetAddModal();
+				});
+
+				function resetAddModal() {
+					$('#relModal #relModalTitle').text('Select First Person');
+					user.select2("val", "");
+					user.trigger('change');
 					for(var i in searchUser.cross.dimensions)
 						searchUser.cross.dimensions[i].filterAll();
-				});
+				}
 
 		block body
