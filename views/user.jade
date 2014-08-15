@@ -6,13 +6,13 @@ block body
 		script(src='/js/d3.min.js')
 		link(rel="stylesheet" type="text/css" href="/css/d3-tip-style.css")
 		script(src='/js/d3-tip.js')
-		script(src='/js/d3-graph.js')
+		script(src='/js/graph-main.js')
 		script(src='/js/jquery.tablesorter.min.js')
 		script(type='text/javascript' defer).
 
 			var loadTables = function() {
 				document.title = document.title.slice(0, document.title.indexOf('|') + 2) + nodes[0].data.name;
-				var rowString = '<tr class="data-row" href="/graph/users/{ID}"><td>{ID}</td><td>{Name}</td><td>{Gender}</td><td><a href="/graph/class/{Year}">{Year}</a></td></tr>';
+				var rowString = '<tr class="data-row" href="/pages/users/{ID}"><td>{ID}</td><td>{Name}</td><td>{Gender}</td><td><a href="/pages/class/{Year}">{Year}</a></td></tr>';
 				
 				$('#user-data > tbody:last').append(rowString.supplant({ID: nodes[0].id, Name: nodes[0].data.name, Gender: nodes[0].data.gender, Year: nodes[0].data.year }));
 
@@ -34,7 +34,7 @@ block body
 				return [width, height];
 			}
 
-			graph({queryURL: '/graph/data/users/#{id}', onDataLoad: loadTables, onWindowResize: resize});
+			graph({queryURL: '/pages/users/#{id}/data', onDataLoad: loadTables, onWindowResize: resize});
 
 		h2 User
 		table#user-data.table.table-hover

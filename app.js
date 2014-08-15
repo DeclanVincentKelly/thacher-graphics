@@ -9,9 +9,13 @@ var StormpathStrategy = require('passport-stormpath');
 var session = require('express-session');
 var flash = require('connect-flash');
 var stormpath = require('stormpath');
+var methodOverride = require('method-override');
 
-var routes = require('./routes');
-var graph = require('./routes/graph.js')
+var index = require('./routes');
+var graphs = require('./routes/graph.js');
+var pages = require('./routes/info-pages.js');
+var data = require('./routes/general-data.js');
+
 var app = express();
 var strategy = new StormpathStrategy({
     apiKeyId: process.env["STORMPATH_API_KEY_ID"],
@@ -39,6 +43,7 @@ app.set('view engine', 'jade');
 //'Middleware setup'
 app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
+app.use(methodOverride());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded());
 app.use(cookieParser());
@@ -64,8 +69,10 @@ app.use(function(req, res, next) {
 });
 
 //'Route setup'
-app.use('/', routes);
-app.use('/graph', graph);
+app.use('/', index);
+app.use('/graphs', graphs);
+app.use('/pages', pages);
+app.use('/data', data);
 
 //'Catch 404 and forwarding to error handler'
 app.use(function(req, res, next) {

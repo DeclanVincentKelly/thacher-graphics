@@ -1,0 +1,19 @@
+extends layout
+
+block body
+	#graph.container-fluid
+		script(src='http://d3js.org/d3.v3.min.js')
+		script(src="http://d3js.org/d3.hive.v0.min.js")
+		link(rel="stylesheet" type="text/css" href="/css/hive.css")
+		script(src='//cdnjs.cloudflare.com/ajax/libs/d3-tip/0.6.3/d3-tip.min.js')
+		script(src='/js/graph-hive.js')
+		script(type='text/javascript').
+			$("body").css("overflow", "hidden");
+			var resize = function(width, height) {
+				height = $(window).height() - $('nav').outerHeight();
+				width = $(window).innerWidth();
+				return [width, height];
+			}
+
+			graph({queryURL: '/graphs/hive/data', onWindowResize: resize});
+			$('#graph').focus();

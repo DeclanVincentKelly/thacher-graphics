@@ -12,7 +12,7 @@ var spClient = new stormpath.Client({
 var querystring = require('querystring');
 
 router.get('/', function(req, res) {
-    res.redirect('/graph');
+    res.redirect('/graphs/main');
 });
 
 
@@ -65,7 +65,7 @@ router.post('/register', function(req, res) {
                     error: err.userMessage
                 });
             } else {
-                return res.redirect('/login?' + querystring.stringify({suc: '/graph'}));
+                return res.redirect('/login?' + querystring.stringify({suc: '/graphs/main'}));
             }
         });
 
@@ -86,7 +86,7 @@ router.get('/login', function(req, res) {
 router.get('/change', function(req, res) {
     if (!req.user || req.user.status !== 'ENABLED') {
         return res.redirect('/login?' + querystring.stringify({
-            suc: '/graph'
+            suc: '/graphs/main'
         }));
     }
 
@@ -119,7 +119,7 @@ router.post('/login', function(req, res, next) {
             if (req.query.suc) {
                 return res.redirect(req.query.suc);
             } else {
-                return res.redirect('/graph');
+                return res.redirect('/graphs/main');
             }
         });
     })(req, res, next);

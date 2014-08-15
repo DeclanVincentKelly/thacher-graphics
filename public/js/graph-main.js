@@ -253,7 +253,7 @@ graph = function(config) {
 					updateSelection(d);
 				}
 			} else {
-				window.location = "http://" + window.location.host + "/graph/users/" + d.id
+				window.location = "http://" + window.location.host + "/pages/users/" + d.id
 			}
 			console.log(d3.event);
 		}

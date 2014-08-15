@@ -1,5 +1,5 @@
 searchUser = function(parentID) {
-	$.getJSON('/graph/data/users', function(data) {
+	$.getJSON('/data/users', function(data) {
 		var people = crossfilter(data);
 		var yearDim = people.dimension(function(d) {
 			return d.year

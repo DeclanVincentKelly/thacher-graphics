@@ -5,7 +5,7 @@ block body
 		script(src='/js/d3.min.js')
 		link(rel="stylesheet" type="text/css" href="/css/d3-tip-style.css")
 		script(src='/js/d3-tip.js')
-		script(src='/js/d3-graph.js')
+		script(src='/js/graph-main.js')
 		script(type='text/javascript').
 			$("body").css("overflow", "hidden");
 			var resize = function(width, height) {
@@ -14,5 +14,5 @@ block body
 				return [width, height];
 			}
 
-			graph({queryURL: '/graph/data', onWindowResize: resize});
+			graph({queryURL: '/graphs/main/data', onWindowResize: resize});
 			$('#graph').focus();

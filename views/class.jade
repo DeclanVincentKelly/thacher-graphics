@@ -6,11 +6,11 @@ block body
 		script(src='/js/d3.min.js')
 		link(rel="stylesheet" type="text/css" href="/css/d3-tip-style.css")
 		script(src='/js/d3-tip.js')
-		script(src='/js/d3-graph.js')
+		script(src='/js/graph-main.js')
 		script(src='/js/jquery.tablesorter.min.js')
 		script(type='text/javascript' defer).
 			var loadTables = function() {
-				var rowString = '<tr class="data-row" href="/graph/users/{ID}"><td>{ID}</td><td>{Name}</td><td>{Gender}</td><td><a href="/graph/class/{Year}">{Year}</a></td></tr>';
+				var rowString = '<tr class="data-row" href="/pages/users/{ID}"><td>{ID}</td><td>{Name}</td><td>{Gender}</td><td><a href="/pages/class/{Year}">{Year}</a></td></tr>';
 				var relTable = $('#class-data > tbody:last');
 				for(var i in nodes) {
 					relTable.append(rowString.supplant({ID: nodes[i].id, Name: nodes[i].data.name, Gender: nodes[i].data.gender, Year: nodes[i].data.year }))
@@ -28,13 +28,16 @@ block body
 				return [width, height];
 			}
 
-			graph({queryURL: '/graph/data/class/#{year}', onDataLoad: loadTables, onWindowResize: resize});
+			graph({queryURL: '/pages/class/#{year}/data', onDataLoad: loadTables, onWindowResize: resize});
 		ul.nav.nav-tabs
-			li.active
-				a(href="#") #{year}
+			- otherYears.splice(year - otherYears[0], 0, year);
 			for oYear in otherYears
-				li
-					a(href="/graph/class/#{oYear}") #{oYear}
+				if oYear != year
+					li
+						a(href="/pages/class/#{oYear}") #{oYear}
+				else
+					li.active
+						a(href="/pages/class/#{oYear}") #{oYear}
 		table#class-data.table.table-hover
 			thead
 				tr
