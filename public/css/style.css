@@ -15,25 +15,27 @@
 	stroke: #999;
 	stroke-opacity: .6;
 }
-
 #graph {
 	padding: 0;
 }
-
 .navbar {
 	margin-bottom: 0;
 }
-
 nav {
 	border-radius: 0 !important;
 	-moz-border-radius: 0 !important;
 }
-
 body {
 	overflow-x: hidden;
 	padding-top: 50px;
 }
-
-#graph {
-	
+.selected {
+	stroke: #EC0000;
+	stroke-width: 3;
+}
+#search {
+	position: absolute;
+	top: 91%;
+	left: 80%;
+	width: 17.5%;
 }

@@ -34,6 +34,7 @@ router.get('/users/:id', function(req, res) {
 	res.render('user', {
 		title: 'User Profile | Index ' + req.params.id,
 		user: req.user,
+		groups: req.session.groups,
 		id: Number(req.params.id),
 	});
 });
@@ -90,6 +91,7 @@ router.get('/class/:year', function(req, res) {
 	res.render('class', {
 		title: "Class of " + req.params.year,
 		user: req.user,
+		groups: req.session.groups,
 		year: Number(req.params.year),
 		otherYears: years.filter(function(elem) {
 			return elem != Number(req.params.year)

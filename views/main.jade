@@ -2,6 +2,7 @@ extends layout
 
 block body
 	#graph.container-fluid
+		input(id='search' placeholder='Search by Name').form-control
 		script(src='/js/d3.min.js')
 		link(rel="stylesheet" type="text/css" href="/css/d3-tip-style.css")
 		script(src='/js/d3-tip.js')
@@ -14,5 +15,5 @@ block body
 				return [width, height];
 			}
 
-			graph({queryURL: '/graphs/main/data', onWindowResize: resize});
+			graph({queryURL: '/graphs/main/data', onWindowResize: resize, search: true});
 			$('#graph').focus();

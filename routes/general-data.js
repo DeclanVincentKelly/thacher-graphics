@@ -37,11 +37,6 @@ router.get('/users', function(req, resp) {
 		'RETURN n'
 	].join('\n');
 
-	var relQ = [
-		'MATCH ()-[r]-()',
-		'RETURN DISTINCT r'
-	].join('\n');
-
 	var params = {};
 
 	db.query(nodeQ, params, function(err, resN) {
@@ -57,11 +52,77 @@ router.get('/users', function(req, resp) {
 	});
 });
 
+router.get('/users/name', function(req, resp) {
+	if (!req.user || req.user.status !== 'ENABLED') {
+		return loginRedirect(req, res);
+	}
+	var results = [];
+	var query = [
+		'MATCH n',
+		'RETURN DISTINCT n.name AS v',
+		'ORDER BY v ASC'
+	].join('\n')
+	var params = {};
+
+	db.query(query, params, function(err, res) {
+		if(err) throw err;
+
+		for(var i in res) {
+			results.push(Number(res[i]['v']));
+		}
+		resp.send(results);
+	})
+});
+
+router.get('/users/year', function(req, resp) {
+	if (!req.user || req.user.status !== 'ENABLED') {
+		return loginRedirect(req, res);
+	}
+	var results = [];
+	var query = [
+		'MATCH n',
+		'RETURN DISTINCT n.year AS v',
+		'ORDER BY v ASC'
+	].join('\n')
+	var params = {};
+
+	db.query(query, params, function(err, res) {
+		if(err) throw err;
+
+		for(var i in res) {
+			results.push(Number(res[i]['v']));
+		}
+		resp.send(results);
+	})
+});
+
+router.get('/users/gender', function(req, resp) {
+	if (!req.user || req.user.status !== 'ENABLED') {
+		return loginRedirect(req, res);
+	}
+	var results = [];
+	var query = [
+		'MATCH n',
+		'RETURN DISTINCT n.gender AS v',
+		'ORDER BY v ASC'
+	].join('\n')
+	var params = {};
+
+	db.query(query, params, function(err, res) {
+		if(err) throw err;
+
+		for(var i in res) {
+			results.push(Number(res[i]['v']));
+		}
+		resp.send(results);
+	})
+});
+
 router.post('/users', function(req, res) {
 	if (!req.user || req.user.status !== 'ENABLED') {
 		return loginRedirect(req, res);
 	}
-	if (!req.user.groups.Mod) {
+	if (!req.session.groups.Mod) {
 		return res.send(401);
 	}
 

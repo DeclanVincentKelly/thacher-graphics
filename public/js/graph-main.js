@@ -8,12 +8,12 @@ graph = function(config) {
 		if (config.onDataLoad)
 			config.onDataLoad();
 
-		var toggle = 0;
-		var linkedByIndex = {};
-		for (i = 0; i < nodes.length; i++) {
-			linkedByIndex[i + "," + i] = 1;
-		};
-		var selected = [];
+		var shiftRange = 25;
+
+		var highSelected;
+
+		var dijSelected = [];
+		var dijToggle = 0;
 
 		var height, width;
 		updateWidthHeight();
@@ -35,19 +35,14 @@ graph = function(config) {
 			.call(d3.behavior.zoom().scaleExtent([.2, 4]).on("zoom", zoom));
 
 
-		log= [];
 		var rect = graph.append('rect')
 			.attr('width', width)
 			.attr('height', height)
 			.style('fill', 'none')
 			.style('pointer-events', 'all')
 			.on('click', function() {
-				if(toggle != 0 && !d3.event.defaultPrevented) {
-					node.style("opacity", 1);
-					link.style("opacity", 1);
-					link.style("stroke", "#C0C0C0");
-					toggle = 0;
-					selected.clear();
+				if ((dijToggle != 0 || highSelected) && !d3.event.defaultPrevented) {
+					resetStyling();
 				}
 			});
 
@@ -62,15 +57,19 @@ graph = function(config) {
 		var drag = force.drag()
 			.on('dragstart', function() {
 				d3.event.sourceEvent.stopPropagation();
-				if(force.alpha() == 0)
+				if (force.alpha() == 0)
 					force.alpha(.01);
 			})
-			.on('dragend', function() {d3.event.sourceEvent.stopPropagation();});
+			.on('dragend', function() {
+				d3.event.sourceEvent.stopPropagation();
+			});
 
 		force
 			.nodes(nodes)
 			.links(links)
 			.start();
+
+		computeNeighbors(nodes, links);
 
 		var link = vis.selectAll(".link")
 			.data(links)
@@ -81,9 +80,7 @@ graph = function(config) {
 				return Math.sqrt((d.source.weight + d.target.weight) / 2);
 			});
 
-			links.forEach(function(d) {
-				linkedByIndex[d.source.index + "," + d.target.index] = 1;
-			});
+		var shift = Math.round(Math.random() * shiftRange);
 
 		var node = vis.selectAll(".node")
 			.data(nodes)
@@ -94,20 +91,33 @@ graph = function(config) {
 				return radius(d);
 			})
 			.style("fill", function(d) {
-				return color(Number(d.data.year) - 2012);
+				return color(Number(d.data.year) + shift);
 			})
 			.on('mouseover', function(d, i) {
-				//d.fixed = true;
-				if(d3.select(this).style('opacity') == "1") {
+				if (d3.select(this).style('opacity') == "1") {
 					tip.show.call(this, d, i);
 				}
 			})
 			.on('mouseout', function(d, i) {
-				//d.fixed = false;
 				tip.hide.call(this, d, i);
 			})
-			.on('click', clickRoute)
+			.on('click', function(d, i) {
+				if (d3.select(this).style('opacity') == "1") {
+					clickRoute.call(this, d, i);
+				} else {
+					resetStyling();
+				}
+			})
 			.call(drag);
+
+		if (d3.select('#search').length) {
+			var search = d3.select('#search')
+				.on('input', function() {
+					highlightSearch.call(this);
+				}).on('change', function() {
+					highlightSearch.call(this);
+				});
+		}
 
 		var maxRadius = 0;
 		node.each(function(d) {
@@ -202,60 +212,139 @@ graph = function(config) {
 			height = dim[1];
 		}
 
-		function neighboring(a, b) {
-			return linkedByIndex[a.index + "," + b.index];
+		function resetStyling(d) {
+			node
+				.style("opacity", 1);
+
+			link
+				.style("opacity", 1)
+				.style("stroke", "#999");
+
+			highSelected = null;
+			dijToggle = 0;
+			dijSelected.clear();
+			source = null;
+			target = null;
 		}
 
-		function neighbors(a, b) {
-			return neighboring(a, b) | neighboring(b, a);
-		}
+		function highlightSearch() {
+			var search = this.value.toLowerCase();
+			if (search == "") {
+				node
+					.style('stroke', '#fff')
+					.style('stroke-width', '1.5px');
 
-		function neighboringSelected(a) {
-			for(var i = 0; i < selected.length; i++)
-				if(neighbors(selected[i], a))
-					return true;
-			return false;
-		}
+				return;
+			}
 
-		function updateSelection(d) {
-			node.style("opacity", function(o) {
-				return (neighbors(d, o) || selected.indexOf(o) != -1) ? 1 : 0.1;
-			});
-			link.style("opacity", function(o) {
-				return ((selected.indexOf(o.source) != -1 && selected.indexOf(o.target) != -1) || o.source.index == d.index || o.target.index == d.index) ? 1 : 0;
-			});
-			link.style("stroke", function(o) {
-				return (selected.indexOf(o.source) != -1 && selected.indexOf(o.target) != -1) ? "#000" : '#C0C0C0';
-			});
+			node
+				.style('stroke', function(d) {
+					return d.data.name.toLowerCase().indexOf(search) != -1 ? "#000" : "#fff";
+				})
+				.style('stroke-width', function(d) {
+					return d.data.name.toLowerCase().indexOf(search) != -1 ? "5px" : "1.5px";
+				});
 		}
 
 		function clickRoute(d) {
-			if(!d3.event.shiftKey && !d3.event.ctrlKey) {
-				if (toggle == 0 || (selected.length < 2 && neighboringSelected(d)) || (selected.indexOf(d) > -1) ) {
-					updateSelection(d);
-					toggle = 1;
+			if (!d3.event.shiftKey && !d3.event.ctrlKey) {
+				if (!highSelected || d3.select(this).style('opacity') == '1') {
+					highSelected = d;
 
-					if(selected.length < 2)
-						selected[0] = d;
-					else
-						selected.push(d);
+					node
+						.style("opacity", function(o) {
+							return (o.index == highSelected.index || _.contains(highSelected.neighbors, o.index)) ? 1 : 0.1;
+						});
+					link
+						.style("opacity", function(o) {
+							return ((o.source.index == highSelected.index || o.target.index == highSelected.index) && (_.contains(highSelected.neighbors, o.source.index) || _.contains(highSelected.neighbors, o.target.index))) ? 1 : 0;
+						})
 
-				} else if ( toggle == 1 && !( !(selected.length < 2) && neighboringSelected(d) ) ) {
-					node.style("opacity", 1);
-					link.style("opacity", 1);
-					link.style("stroke", "#C0C0C0");
-					toggle = 0;
-					selected.clear();
 				}
-			} else if (!d3.event.ctrlKey) {
-				if (toggle == 1 || neighboringSelected(d)) {
-					selected.push(d);
-					updateSelection(d);
+			} else if (d3.event.shiftKey && !d3.event.ctrlKey) {
+				if (dijToggle == 0) {
+					source = _.cloneDeep(d);
+					dijSelected.push(source);
+					dijToggle++;
+				} else if (dijToggle == 1) {
+					var target = _.cloneDeep(d);
+					var source = dijSelected[0];
+					dijSelected = readDijkstra(target, dijkstra(nodes, source, target).prev);
+					dijSelected.push(source);
+					dijToggle++;
+					node.style("opacity", function(o) {
+						return (_.some(dijSelected, function(d) {
+							return d.index == o.index
+						})) ? 1 : 0.1;
+					})
+
+					link.style("opacity", function(o) {
+						return (_.some(dijSelected, function(d) {
+							return d.index == o.source.index
+						}) && _.some(dijSelected, function(d) {
+							return d.index == o.target.index
+						})) ? 1 : 0;
+					});
 				}
-			} else {
-				window.location = "http://" + window.location.host + "/pages/users/" + d.id
+			} else if (!d3.event.shiftKey && d3.event.ctrlKey) {
+				var source = d;
+				var dist = dijkstra(nodes, source).dist;
+
+				var distNodes = _(dist).map(function(d, i) {
+					return {
+						val: d,
+						index: i
+					}
+				}).filter(function(d) {
+					return d.val != Infinity
+				}).map(function(d, index) {
+					return {
+						node: nodes[d.index],
+						distance: d.val
+					}
+				}).value();
+
+				var heatColor = d3.scale.linear().domain([0, _.max(distNodes, function(d) {
+					return d.distance
+				}).distance]).range(['#FF0000', '#00FFFF']); //['#d62728', '#27d6d5']
+
+				var duration = 750;
+
+				node.transition()
+					.duration(duration)
+					.delay(function(datum) {
+						var sel;
+						if (_.find(distNodes, function(node) {
+							sel = node;
+							return datum.id === node.node.id;
+						})) {
+							return sel.distance * duration;
+						} else {
+							return (_.max(distNodes, function(d) {
+								return d.distance
+							}).distance + 1) * duration;
+						}
+					})
+					.style('fill', function(datum) {
+						var sel;
+						if (_.find(distNodes, function(node) {
+							sel = node;
+							return datum.id === node.node.id;
+						})) {
+							return heatColor(sel.distance);
+						} else {
+							return '#000000';
+						}
+					});
+			} else if (d3.event.shiftKey && d3.event.ctrlKey) {
+				var duration = 750;
+				var shift = Math.round(Math.random() * shiftRange);
+				node.transition()
+					.duration(duration)
+					.style("fill", function(d) {
+						return color(Number(d.data.year) + shift);
+					})
 			}
-			console.log(d3.event);
 		}
 
 		$(window).resize(updateWindow);

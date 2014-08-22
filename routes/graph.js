@@ -30,10 +30,10 @@ router.get('/main', function(req, res) {
 	if (!req.user || req.user.status !== 'ENABLED') {
 		return loginRedirect(req, res);
 	}
-
 	res.render('main', {
 		title: 'Main Graph',
 		user: req.user,
+		groups: req.session.groups
 	});
 });
 
@@ -88,6 +88,7 @@ router.get('/hive', function(req, res) {
 	res.render('hive', {
 		title: 'Hive Graph',
 		user: req.user,
+		groups: req.session.groups
 	});
 });
 

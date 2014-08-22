@@ -18,18 +18,18 @@ html
 		link(href='//cdnjs.cloudflare.com/ajax/libs/select2/3.5.0/select2.min.css', rel='stylesheet')
 		link(href='/css/select2-bootstrap.css', rel='stylesheet')
 		script(src='//cdnjs.cloudflare.com/ajax/libs/crossfilter/1.3.7/crossfilter.min.js')
-		script(src='//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js')
+		script(src='//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js')
 		script(src='/js/mod-power-select.js')
 		script(type='text/javascript').
 			function resetPass() {
-				$('#passModal').modal({
+				$('#pass-modal').modal({
 					keyboard: false,
 					backdrop: 'static'
 				});
 
 				$('#confirmReset').click(function() {
 					$.get('\/change');
-					window.location = window.location.origin + "/logout"
+					window.location = window.location.origin + "/logout";
 				});
 			}
 	body
@@ -61,10 +61,10 @@ html
 									span.caret
 								ul.dropdown-menu(role='menu')
 									li
-										a(onclick='$("#searchUserModal").modal();') Student Page
+										a(onclick='$("#search-user-modal").modal();') Student Page
 									li
-										a(onlick='') Class Page
-						if user && user.groups.Mod
+										a(onclick='$("#class-page-modal").modal();') Class Page
+						if user && groups && groups.Mod
 							ul.nav.navbar-nav
 								li.dropdown
 									a.dropdown-toggle(href='#', data-toggle='dropdown')
@@ -72,7 +72,7 @@ html
 										span.caret
 									ul.dropdown-menu(role='menu')
 										li
-											a(onclick="$('#relModal').modal({keyboard: false});") Add Relationship
+											a(onclick="$('#rel-modal').modal({keyboard: false});") Add Relationship
 										li
 											a More to come
 						ul.nav.navbar-nav.navbar-right
@@ -85,7 +85,7 @@ html
 										a(id='resetPass' href='javascript:{}' onclick='resetPass()') Reset Password	
 									li
 										a(href='/logout') Logout
-		#passModal(role='dialog').modal.fade
+		#pass-modal(role='dialog').modal.fade
 			.modal-dialog
 				.modal-content
 					.modal-header
@@ -95,9 +95,9 @@ html
 							Are you sure you wish to change your password? If so, click the "Change Password" button below and you will be sent an email with further details.
 							If not, click "Cancel".
 					.modal-footer
-						button(type="button")#confirmReset.btn.btn-danger Change Password
+						button(type="button")#confirm-reset.btn.btn-danger Change Password
 						button(type="button" data-dismiss="modal").btn.btn-default Cancel
-		#searchUserModal(role='dialog').modal.fade
+		#search-user-modal(role='dialog').modal.fade
 			.modal-dialog
 				.modal-content
 					.modal-header
@@ -110,14 +110,48 @@ html
 						.form-group
 							input(type='hidden')#select-gender.form-control
 					.modal-footer
-						button(type="button")#confirmSearch.btn.btn-danger.disabled Goto Page
+						button(type="button")#confirm-search.btn.btn-danger.disabled Goto Page
 						button(type="button" data-dismiss="modal").btn.btn-default Cancel
-		if user && user.groups.Mod
-			#relModal(role='dialog').modal.fade
+		#class-page-modal(role='dialog').modal.fade
+			.modal-dialog
+				.modal-content
+					.modal-header
+						h4.modal-title Navigate To Class Page
+					.modal-body
+						.form-group
+							input(type='hidden')#select-grade.form-control
+					.modal-footer
+						button(type="button")#confirm-search.btn.btn-danger.disabled Goto Page
+						button(type="button" data-dismiss="modal").btn.btn-default Cancel
+		if user
+			script(type='text/javascript' defer).
+				searchUser('#search-user-modal');
+				$('#search-user-modal #select-user').on('change', function (e) {
+					if(!$('#search-user-modal #select-user').val())
+						$('#search-user-modal #confirm-search').addClass('disabled');
+					else
+						$('#search-user-modal #confirm-search').removeClass('disabled');
+				});
+				$('#search-user-modal #confirm-search').click(function (e) {
+					window.location = "http://" + window.location.host + "/pages/users/" + $('#search-user-modal #select-user').val();
+				});
+
+				searchUser('#class-page-modal')
+				$('#class-page-modal #select-grade').on('change', function (e) {
+					if(!$('#class-page-modal #select-grade').val())
+						$('#class-page-modal #confirm-search').addClass('disabled');
+					else
+						$('#class-page-modal #confirm-search').removeClass('disabled');
+				});
+				$('#class-page-modal #confirm-search').click(function (e) {
+					window.location = "http://" + window.location.host + "/pages/class/" + $('#class-page-modal #select-grade').val();
+				});
+		if user && groups && groups.Mod
+			#rel-modal(role='dialog').modal.fade
 				.modal-dialog
 					.modal-content
 						.modal-header
-							h4#relModalTitle.modal-title Select First Person
+							h4#rel-modal-title.modal-title Select First Person
 						.modal-body
 							form(role='form')
 								.form-group
@@ -127,9 +161,9 @@ html
 								.form-group
 									input(type='hidden')#select-gender.form-control
 						.modal-footer
-							button(type="button" data-dismiss='modal')#confirmAdd.btn.btn-danger.disabled Select Person
-							button(type="button" data-dismiss="modal")#cancelAdd.btn.btn-default Cancel
-			#relConfirmModal(role='dialog').modal.fade
+							button(type="button" data-dismiss='modal')#confirm-add.btn.btn-danger.disabled Select Person
+							button(type="button" data-dismiss="modal")#cancel-add.btn.btn-default Cancel
+			#rel-confirm-modal(role='dialog').modal.fade
 				.modal-dialog
 					.modal-content
 						.modal-header
@@ -140,61 +174,49 @@ html
 							p To see the results, please reload your page.
 						.modal-footer
 							button(type="button" data-dismiss="modal").btn.btn-default Dismiss
-			script(type='text/javascript').
-				searchUser("#relModal");
-				var ids = {a: 0, b: 0}
+			script(type='text/javascript' defer).
+				searchUser("#rel-modal");
+				var ids = {a: 0, b: 0};
 				var state = 0;
-				var user = $('#relModal #select-user');
-				$('#relModal #select-user').on('change', function (e) {
+				var user = $('#rel-modal #select-user');
+				$('#rel-modal #select-user').on('change', function (e) {
 					if(!user.val())
-						$('#relModal #confirmAdd').addClass('disabled');
+						$('#rel-modal #confirm-add').addClass('disabled');
 					else
-						$('#relModal #confirmAdd').removeClass('disabled');
+						$('#rel-modal #confirm-add').removeClass('disabled');
 				});
 
-				$('#relModal #confirmAdd').click(function (e) {
+				$('#rel-modal #confirm-add').click(function (e) {
 					if(state == 0) {
 						ids['a'] = +user.val();
-						$('#relModal').modal('hide');
+						$('#rel-modal').modal('hide');
 						resetAddModal();
-						setTimeout(function() {$('#relModal #relModalTitle').text('Select Second Person');}, 250);
-						setTimeout(function() {$('#relModal').modal('show');}, 1000);
+						setTimeout(function() {$('#rel-modal #rel-modal-title').text('Select Second Person');}, 250);
+						setTimeout(function() {$('#rel-modal').modal('show');}, 1000);
 						state++;
 					} else {
 						ids['b'] = +user.val();
-						$('#relModal').modal('hide');
+						$('#rel-modal').modal('hide');
 						resetAddModal();
 						
-						$('#relConfirmModal').modal();
+						$('#rel-confirm-modal').modal();
 						state = 0;
 						$.post("/data/users", ids);
 					}
 				});
 
-				$('#relModal #cancelAdd').click(function() {
+				$('#rel-modal #cancel-add').click(function() {
 					ids = {a: 0, b: 0};
 					state = 0;
 					resetAddModal();
 				});
 
 				function resetAddModal() {
-					$('#relModal #relModalTitle').text('Select First Person');
+					$('#rel-modal #rel-modal-title').text('Select First Person');
 					user.select2("val", "");
 					user.trigger('change');
 					for(var i in searchUser.cross.dimensions)
 						searchUser.cross.dimensions[i].filterAll();
 				}
-
-				searchUser('#searchUserModal');
-				$('#searchUserModal #select-user').on('change', function (e) {
-					if(!$('#searchUserModal #select-user').val())
-						$('#searchUserModal #confirmSearch').addClass('disabled');
-					else
-						$('#searchUserModal #confirmSearch').removeClass('disabled');
-				});
-
-				$('#searchUserModal #confirmSearch').click(function (e) {
-					window.location = "http://" + window.location.host + "/pages/users/" + $('#searchUserModal #select-user').val();
-				});
 
 		block body

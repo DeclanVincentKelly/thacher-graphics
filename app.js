@@ -40,6 +40,17 @@ passport.deserializeUser(strategy.deserializeUser);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
+var sess = {
+  secret: process.env.EXPRESS_SECRET,
+  key: 'sid', 
+  cookie: {}
+}
+
+if (app.get('env') === 'production') {
+  app.set('trust proxy', 1) // trust first proxy
+  sess.cookie.secure = true // serve secure cookies
+}
+
 //'Middleware setup'
 app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
@@ -49,21 +60,23 @@ app.use(bodyParser.urlencoded());
 app.use(cookieParser());
 app.use(require('stylus').middleware(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(session({ secret: process.env.EXPRESS_SECRET, key: 'sid', cookie: {secure: false} }));
+app.use(session(sess));
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(flash())
+app.use(flash());
 app.use(function(req, res, next) {
-    if(req.user) {
+    if(!req.session.groups && req.user) {
         spClient.getAccount(req.user.href, function(err, acc) {
+            if(err) throw err;
             acc.getGroups(function(err, groups) {
-                req.user.groups = {};
+                if(err) throw err;
+                req.session.groups = {};
                 for(var i in groups.items)
-                    req.user.groups[groups.items[i].name] = groups.items[i];
+                    req.session.groups[groups.items[i].name] = true;
                 next();
             });
         });
-    } else {
+    } else if (!req.user || req.session.groups) {
         next();
     }
 });

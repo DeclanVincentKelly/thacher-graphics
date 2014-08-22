@@ -181,9 +181,6 @@ graph = function(config) {
                 rect
                     .attr("width", width)
                     .attr('height', height);
-
-                force.size([width, height])
-                    .start();
             }, 600, "some unique string");
         }
 
