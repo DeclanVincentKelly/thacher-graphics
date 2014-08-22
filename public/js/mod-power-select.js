@@ -67,5 +67,8 @@ searchUser = function(parentID) {
 				gender.filterAll();
 				$('#select-user').select2('data', null);
 			});
+
+		var passOn = {people: people, dimensions: {yearDim: yearDim, nameDim: nameDim, genderDim: genderDim}};
+		searchUser.cross = passOn;
 	});
 }
