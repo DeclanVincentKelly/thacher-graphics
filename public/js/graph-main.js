@@ -255,7 +255,7 @@ graph = function(config) {
 
 		function clickRoute(d) {
 			d3.event.preventDefault();
-			if (!d3.event.shiftKey && !d3.event.ctrlKey) {
+			if (!d3.event.shiftKey && !d3.event.altKey) {
 				if (!highSelected || d3.select(this).style('opacity') == '1') {
 					highSelected = d;
 
@@ -268,7 +268,7 @@ graph = function(config) {
 							return ((o.source.index == highSelected.index || o.target.index == highSelected.index) && (_.contains(highSelected.neighbors, o.source.index) || _.contains(highSelected.neighbors, o.target.index))) ? 1 : 0;
 						})
 				}
-			} else if (d3.event.shiftKey && !d3.event.ctrlKey) {
+			} else if (d3.event.shiftKey && !d3.event.altKey) {
 				if (dijToggle == 0) {
 					source = _.cloneDeep(d);
 					dijSelected.push(source);
@@ -299,7 +299,7 @@ graph = function(config) {
 						})) ? 1 : 0;
 					});
 				}
-			} else if (!d3.event.shiftKey && d3.event.ctrlKey) {
+			} else if (!d3.event.shiftKey && d3.event.altKey) {
 				var source = d;
 				var dist = dijkstra(nodes, source).dist;
 
@@ -349,7 +349,7 @@ graph = function(config) {
 							return '#000000';
 						}
 					});
-			} else if (d3.event.shiftKey && d3.event.ctrlKey) {
+			} else if (d3.event.shiftKey && d3.event.altKey) {
 				var duration = 750;
 				var shift = Math.round(Math.random() * shiftRange);
 				node.transition()
