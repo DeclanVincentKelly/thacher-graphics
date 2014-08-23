@@ -17,7 +17,7 @@ graph = function(config) {
 
         updateWidthHeight();
 
-        var color = d3.scale.category20c();
+        var color = d3.scale.category10();
 
         var svg = d3.select('#graph')
         	.append('svg:svg')

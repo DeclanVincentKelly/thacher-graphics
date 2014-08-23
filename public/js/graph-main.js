@@ -43,6 +43,8 @@ graph = function(config) {
 			.on('click', function() {
 				if ((dijToggle != 0 || highSelected) && !d3.event.defaultPrevented) {
 					resetStyling();
+				} else if ($('#search').val()) {
+					resetStyling();
 				}
 			});
 
@@ -116,6 +118,13 @@ graph = function(config) {
 					highlightSearch.call(this);
 				}).on('change', function() {
 					highlightSearch.call(this);
+				}).on('mouseover', function() {
+					d3.select('#search').transition().duration(250).style('opacity', 1);
+				}).on('mouseout', function() {
+					if(!$("#search").is(":focus"))
+						d3.select('#search').transition().duration(250).style('opacity', 0.25);
+				}).on('focusout', function() {
+					d3.select('#search').transition().duration(250).style('opacity', 0.25);
 				});
 		}
 
@@ -214,11 +223,10 @@ graph = function(config) {
 
 		function resetStyling(d) {
 			node
-				.style("opacity", 1);
+				.style({'stroke': "#fff", 'stroke-width': '1.5px', 'opacity': 1});
 
 			link
-				.style("opacity", 1)
-				.style("stroke", "#999");
+				.style({"opacity": 1, 'stroke': '#999'});
 
 			highSelected = null;
 			dijToggle = 0;
@@ -230,23 +238,23 @@ graph = function(config) {
 		function highlightSearch() {
 			var search = this.value.toLowerCase();
 			if (search == "") {
-				node
-					.style('stroke', '#fff')
-					.style('stroke-width', '1.5px');
+				node.style('opacity', 1);
+				link.style('opacity', 1);
 
 				return;
 			}
 
-			node
-				.style('stroke', function(d) {
-					return d.data.name.toLowerCase().indexOf(search) != -1 ? "#000" : "#fff";
+			node.style('opacity', function(d) {
+					return d.data.name.toLowerCase().indexOf(search) != -1 ? 1 : 0.1;
 				})
-				.style('stroke-width', function(d) {
-					return d.data.name.toLowerCase().indexOf(search) != -1 ? "5px" : "1.5px";
-				});
+
+			link.style('opacity', function(d) {
+					return (d.source.data.name.toLowerCase().indexOf(search) != -1 && d.target.data.name.toLowerCase().indexOf(search) != -1) ? 1 : 0.1;
+				})
 		}
 
 		function clickRoute(d) {
+			d3.event.preventDefault();
 			if (!d3.event.shiftKey && !d3.event.ctrlKey) {
 				if (!highSelected || d3.select(this).style('opacity') == '1') {
 					highSelected = d;
@@ -259,13 +267,18 @@ graph = function(config) {
 						.style("opacity", function(o) {
 							return ((o.source.index == highSelected.index || o.target.index == highSelected.index) && (_.contains(highSelected.neighbors, o.source.index) || _.contains(highSelected.neighbors, o.target.index))) ? 1 : 0;
 						})
-
 				}
 			} else if (d3.event.shiftKey && !d3.event.ctrlKey) {
 				if (dijToggle == 0) {
 					source = _.cloneDeep(d);
 					dijSelected.push(source);
 					dijToggle++;
+
+					var origColor = d3.hsl(d3.select(this).style('fill'));
+					d3.select(this)
+						.style('stroke', d3.hsl((origColor.h + 180) % 360, origColor.s, origColor.l).toString())
+						.style('stroke-width', '3px');
+					
 				} else if (dijToggle == 1) {
 					var target = _.cloneDeep(d);
 					var source = dijSelected[0];
@@ -276,7 +289,7 @@ graph = function(config) {
 						return (_.some(dijSelected, function(d) {
 							return d.index == o.index
 						})) ? 1 : 0.1;
-					})
+					}).style({'stroke': "#fff", 'stroke-width': '1.5px'});
 
 					link.style("opacity", function(o) {
 						return (_.some(dijSelected, function(d) {
