@@ -133,7 +133,7 @@ router.post('/users', function(req, res) {
 		'MATCH (a), (b)',
 		'WHERE id(a) = { a } AND id(b) = { b }',
 		'MERGE (a)-[r:RELATIONS_WITH]->(b)',
-		'ON CREATE SET r.added_by = { added_by }'
+		'ON CREATE SET r.added_by = { added_by }, r.added_time = timestamp(), r.req_del = []'
 	].join('\n')
 
 	var params = req.body;
@@ -145,6 +145,33 @@ router.post('/users', function(req, res) {
 		return res.send(200);
 	});
 });
+
+router.delete('/users', function(req, res) {
+	if (!req.user || req.user.status !== 'ENABLED') {
+		return loginRedirect(req, res);
+	}
+	if (!req.session.groups.Mod) {
+		return res.send(401);
+	}
+
+	for(var i in req.body)
+		req.body[i] = Number(req.body[i]);
+
+	var query = [
+		'MATCH (a)-[r]-(b)',
+		'WHERE id(a)= { a } AND id(b)={ b }',
+		'WITH DISTINCT r',
+		'SET r.req_del = r.req_del + [{ req_del }]'
+	].join('\n');
+	var params = req.body;
+	params['req_del'] = req.user.username;
+
+	db.query(query, params, function(err, result) {
+		if(err) throw err;
+
+		return res.send(200);
+	})
+})
 
 router.get('/users/:id/rels', function(req, res) {
 	if (!req.user || req.user.status !== 'ENABLED') {

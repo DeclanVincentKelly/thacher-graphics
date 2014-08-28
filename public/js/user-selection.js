@@ -8,7 +8,7 @@ UserSelection = function() {
 
 
 	this.createSelection = function(config) {
-		if (data) {
+		if (data || config.data) {
 			var options = {
 				parentID: config.parentID,
 				toggleUser: ('toggleUser' in config) ? config.toggleUser : true,
@@ -17,9 +17,9 @@ UserSelection = function() {
 				userMessage: config.userMessage ? config.userMessage : "Select a name",
 				yearMessage: config.yearMessage ? config.yearMessage : "Refine search by grade",
 				genderMessage: config.genderMessage ? config.genderMessage : "Refine search by gender",
+				data: ('data' in config) ? config.data : data,
 			}
-			console.log(options)
-			var people = crossfilter(data);
+			var people = crossfilter(options.data);
 			if (options.toggleYear)
 				var yearDim = people.dimension(function(d) {
 					return d.year
@@ -33,7 +33,7 @@ UserSelection = function() {
 					return d.gender
 				});
 			if (options.toggleUser)
-				$(config.parentID + ' #select-user').select2({
+				$(options.parentID + ' #select-user').select2({
 					placeholder: options.userMessage,
 					minimumInputLength: 0,
 					query: function(query) {
@@ -52,7 +52,7 @@ UserSelection = function() {
 					}
 				});
 			if (options.toggleYear)
-				$(config.parentID + ' #select-grade').select2({
+				$(options.parentID + ' #select-grade').select2({
 					placeholder: options.yearMessage,
 					allowClear: true,
 					data: yearDim.group().all().map(function(e) {
@@ -64,14 +64,14 @@ UserSelection = function() {
 				})
 				.on('select2-selecting', function(e) {
 					yearDim.filter(e.val);
-					$('#select-user').select2('data', null);
+					$(options.parentID + '#select-user').select2('data', null);
 				})
 				.on('select2-removed', function(e) {
 					yearDim.filterAll();
-					$('#select-user').select2('data', null);
+					$(options.parentID + '#select-user').select2('data', null);
 				});
 			if (options.toggleGender)
-				$(config.parentID + ' #select-gender').select2({
+				$(options.parentID + ' #select-gender').select2({
 					placeholder: options.genderMessage,
 					allowClear: true,
 					data: genderDim.group().all().map(function(e) {
@@ -83,28 +83,28 @@ UserSelection = function() {
 				})
 				.on('select2-selecting', function(e) {
 					genderDim.filter(e.val);
-					$('#select-user').select2('data', null);
+					$(options.parentID + '#select-user').select2('data', null);
 				})
 				.on('select2-removed', function(e) {
 					gender.filterAll();
-					$('#select-user').select2('data', null);
+					$(options.parentID + '#select-user').select2('data', null);
 				});
 
-			this[config.parentID] = {
+			this[options.parentID] = {
 				people: people,
 				dimensions: {}
 			};
 
 			if (options.toggleGender) {
-				this[config.parentID].dimensions.genderDim = genderDim;
+				this[options.parentID].dimensions.genderDim = genderDim;
 			}
 
 			if (options.toggleYear) {
-				this[config.parentID].dimensions.yearDim = yearDim;
+				this[options.parentID].dimensions.yearDim = yearDim;
 			}
 
 			if (options.toggleUser) {
-				this[config.parentID].dimensions.nameDim = nameDim;
+				this[options.parentID].dimensions.nameDim = nameDim;
 			}
 		} else {
 			var inst = this;
