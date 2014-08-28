@@ -19,7 +19,7 @@ html
 		link(href='/css/select2-bootstrap.css', rel='stylesheet')
 		script(src='//cdnjs.cloudflare.com/ajax/libs/crossfilter/1.3.7/crossfilter.min.js')
 		script(src='//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js')
-		script(src='/js/mod-power-select.js')
+		script(src='/js/user-selection.js')
 		script(type='text/javascript').
 			function resetPass() {
 				$('#pass-modal').modal({
@@ -125,7 +125,10 @@ html
 						button(type="button" data-dismiss="modal").btn.btn-default Cancel
 		if user
 			script(type='text/javascript' defer).
-				searchUser('#search-user-modal');
+				var sel = new UserSelection();
+				sel.createSelection({
+					parentID: '#search-user-modal',
+				});
 				$('#search-user-modal #select-user').on('change', function (e) {
 					if(!$('#search-user-modal #select-user').val())
 						$('#search-user-modal #confirm-search').addClass('disabled');
@@ -136,7 +139,13 @@ html
 					window.location = "http://" + window.location.host + "/pages/users/" + $('#search-user-modal #select-user').val();
 				});
 
-				searchUser('#class-page-modal')
+				sel.createSelection({
+					parentID: '#class-page-modal',
+					toggleUser: false,
+					toggleGender: false,
+					toggleYear: true,
+					yearMessage: 'Select a year',
+				})
 				$('#class-page-modal #select-grade').on('change', function (e) {
 					if(!$('#class-page-modal #select-grade').val())
 						$('#class-page-modal #confirm-search').addClass('disabled');
@@ -175,7 +184,9 @@ html
 						.modal-footer
 							button(type="button" data-dismiss="modal").btn.btn-default Dismiss
 			script(type='text/javascript' defer).
-				searchUser("#rel-modal");
+				sel.createSelection({
+					parentID: '#rel-modal',
+				});
 				var ids = {a: 0, b: 0};
 				var state = 0;
 				var user = $('#rel-modal #select-user');
@@ -215,8 +226,8 @@ html
 					$('#rel-modal #rel-modal-title').text('Select First Person');
 					user.select2("val", "");
 					user.trigger('change');
-					for(var i in searchUser.cross.dimensions)
-						searchUser.cross.dimensions[i].filterAll();
+					for(var i in sel['#rel-modal'].dimensions)
+						sel['#rel-modal'].dimensions[i].filterAll();
 				}
 
 		block body

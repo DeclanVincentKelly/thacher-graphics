@@ -40,3 +40,6 @@ body {
 	left: 80%;
 	width: 17.5%;
 }
+#error-display {
+	padding-top: 10%
+}

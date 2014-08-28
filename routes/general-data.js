@@ -68,7 +68,7 @@ router.get('/users/name', function(req, resp) {
 		if(err) throw err;
 
 		for(var i in res) {
-			results.push(Number(res[i]['v']));
+			results.push(res[i]['v']);
 		}
 		resp.send(results);
 	})
@@ -110,9 +110,9 @@ router.get('/users/gender', function(req, resp) {
 
 	db.query(query, params, function(err, res) {
 		if(err) throw err;
-
+ 
 		for(var i in res) {
-			results.push(Number(res[i]['v']));
+			results.push(res[i]['v']);
 		}
 		resp.send(results);
 	})
@@ -146,47 +146,56 @@ router.post('/users', function(req, res) {
 	});
 });
 
-router.get('/search', function(req, res) {
+router.get('/users/:id/rels', function(req, res) {
 	if (!req.user || req.user.status !== 'ENABLED') {
 		return loginRedirect(req, res);
 	}
 
+	var results = [];
 	var query = [
-		'MATCH (n)',
-		'WHERE id(n) = { excludeID }',
-		'WITH n',
 		'MATCH (a)',
-		'WHERE NOT a = n',
-		'AND NOT (a)--(n)',
-		'AND a.name =~ { nameRegex }',
-		'RETURN a'
-	]
-
+		'WHERE id(a) = { id }',
+		'WITH a',
+		'MATCH (a)--(b)',
+		'RETURN b'
+	].join('\n');
 	var params = {
-		excludeID: Number(req.query.excludeID),
-		nameRegex: ".*" + req.query.query + ".*"
+		id: Number(req.params.id),
+	}
+	db.query(query, params, function(err, data) {
+		for(var i in data) {
+			results.push(data[i]['b'].data);
+			results[results.length - 1].id = data[i]['b'].id;
+		}
+		res.send(results);
+	})
+
+});
+
+router.get('/users/:id', function(req, res) {
+	if (!req.user || req.user.status !== 'ENABLED') {
+		return loginRedirect(req, res);
 	}
 
-	if (req.query.gRefine) {
-		params['matchGender'] = req.query.gRefine;
-		query.splice(7, 0, 'AND a.gender = { matchGender }')
+	var results = [];
+	var query = [
+		'MATCH (a)',
+		'WHERE id(a) = { id }',
+		'RETURN a'
+	].join('\n');
+	var params = {
+		id: Number(req.params.id),
 	}
-
-	if (req.query.yRefine) {
-		params['matchYear'] = Number(req.query.yRefine);
-		query.splice(7, 0, 'AND a.year = { matchYear }')
-	}
-
-	query = query.join('\n');
-
-	db.query(query, params, function(err, resN) {
-		jsonRes = [];
-		if (err) throw err;
-		for (var i in resN)
-			jsonRes.push(resN[i]['a'].data)
-
-		return res.send(jsonRes);
-	});
+	db.query(query, params, function(err, data) {
+		var json = {};
+		for(var j in data) {
+			for(var i in data[j]['a'].data) {
+				json[i] = data[j]['a'].data[i]
+				json.id = data[j]['a'].id;
+			}
+		}
+		res.send(json);
+	})
 
 });
 

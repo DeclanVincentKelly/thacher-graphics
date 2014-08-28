@@ -125,6 +125,10 @@ graph = function(config) {
 						d3.select('#search').transition().duration(250).style('opacity', 0.25);
 				}).on('focusout', function() {
 					d3.select('#search').transition().duration(250).style('opacity', 0.25);
+				}).on('keyup', function() {
+    				if (d3.event.keyCode == 13) {
+        				highlightSearch.call(this);
+    				}
 				});
 		}
 

@@ -102,7 +102,10 @@ if (app.get('env') === 'development') {
     app.use(function(err, req, res, next) {
         res.status(err.status || 500);
         res.render('error', {
+            user: req.user,
+            groups: req.session.groups,
             message: err.message,
+            status: err.status,
             error: err
         });
     });
@@ -113,7 +116,10 @@ if (app.get('env') === 'development') {
 app.use(function(err, req, res, next) {
     res.status(err.status || 500);
     res.render('error', {
+        user: req.user,
+        groups: req.session.groups,
         message: err.message,
+        status: err.status,
         error: {}
     });
 });
