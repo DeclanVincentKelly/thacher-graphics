@@ -35,11 +35,21 @@ Object.defineProperty(Array.prototype, "clear", {
 computeNeighbors = function(nodes, links) {
 	_.each(nodes, function(element) {
 		element.neighbors = [];
-	})
+	});
 	_.each(links, function(element, index, list) {
-		nodes[element.source.index].neighbors.push(element.target.index);
-		nodes[element.target.index].neighbors.push(element.source.index);
-	})
+		nodes[element.source.index ? element.source.index : element.source].neighbors.push(element.target.index ? element.target.index: element.target);
+		nodes[element.target.index ? element.target.index : element.target].neighbors.push(element.source.index ? element.source.index: element.source);
+	});
+}
+
+computeWeight = function(nodes, links) {
+	_.each(nodes, function(element) {
+		element.weight = 0;
+	});
+	_.each(links, function(element, index, list) {
+		nodes[element.source.index ? element.source.index : element.source].weight++;
+		nodes[element.target.index ? element.target.index : element.target].weight++;
+	});
 }
 
 dijkstra = function(nodes, source, target) {

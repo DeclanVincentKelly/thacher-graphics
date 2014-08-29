@@ -14,6 +14,8 @@
 .link {
 	stroke: #999;
 	stroke-opacity: .6;
+	fill: none;
+	stroke-width: 3px;
 }
 #graph {
 	padding: 0;
@@ -42,4 +44,16 @@ body {
 }
 #error-display {
 	padding-top: 10%
+}
+.d3-tip {
+  	line-height: 1;
+  	font-weight: bold;
+  	padding: 12px;
+  	background: rgba(0, 0, 0, 0.8);
+  	color: #fff;
+  	border-radius: 2px;
+  	pointer-events: none;
+  	position:absolute;
+  	left: 10px !important;
+	top: 61px !important;
 }

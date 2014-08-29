@@ -2,9 +2,9 @@ extends layout
 
 block body
 	#graph.container-fluid
+		input(id='search' placeholder='Search by Name').form-control
 		script(src='http://d3js.org/d3.v3.min.js')
 		script(src="http://d3js.org/d3.hive.v0.min.js")
-		link(rel="stylesheet" type="text/css" href="/css/hive.css")
 		script(src='//cdnjs.cloudflare.com/ajax/libs/d3-tip/0.6.3/d3-tip.min.js')
 		script(src='/js/graph-hive.js')
 		script(type='text/javascript').
