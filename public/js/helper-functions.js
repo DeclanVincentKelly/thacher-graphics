@@ -107,7 +107,6 @@ dijkstra = function(nodes, source, target) {
 }
 
 readDijkstra = function(target, previous) {
-	console.log(previous);
 	var S = [];
 	var u = target;
 	while (previous[u.index]) {

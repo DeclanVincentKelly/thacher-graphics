@@ -34,7 +34,7 @@ block body
 				return [width, height];
 			}
 
-			graph({queryURL: '/pages/users/#{id}/data', onDataLoad: loadTables, onWindowResize: resize});
+			graph({queryURL: '/pages/users/#{id}/data', onDataLoad: loadTables, onWindowResize: resize, id: 'graph'});
 
 		h2 User
 		table#user-data.table.table-hover

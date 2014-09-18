@@ -28,7 +28,7 @@ block body
 				return [width, height];
 			}
 
-			graph({queryURL: '/pages/class/#{year}/data', onDataLoad: loadTables, onWindowResize: resize});
+			graph({queryURL: '/pages/class/#{year}/data', onDataLoad: loadTables, onWindowResize: resize, id: 'graph'});
 		ul.nav.nav-tabs
 			- otherYears.splice(year - otherYears[0], 0, year);
 			for oYear in otherYears

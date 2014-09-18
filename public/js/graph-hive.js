@@ -1,20 +1,41 @@
 graph = function(config) {
+	var opts = {
+		lines: 7, // The number of lines to draw
+		length: 0, // The length of each line
+		width: 10, // The line thickness
+		radius: 11, // The radius of the inner circle
+		corners: 1, // Corner roundness (0..1)
+		rotate: 0, // The rotation offset
+		direction: 1, // 1: clockwise, -1: counterclockwise
+		color: '#000', // #rgb or #rrggbb or array of colors
+		speed: 0.8, // Rounds per second
+		trail: 50, // Afterglow percentage
+		shadow: false, // Whether to render a shadow
+		hwaccel: false, // Whether to use hardware acceleration
+		className: 'spinner', // The CSS class to assign to the spinner
+		zIndex: 2e9, // The z-index (defaults to 2000000000)
+		top: '50%', // Top position relative to parent
+		left: '50%' // Left position relative to parent
+	};
+	var target = document.getElementById(config.id);
+	var spinner = new Spinner(opts).spin(target);
 	d3.json(config.queryURL, function(err, data) {
 		if (err) throw err;
 
+		spinner.stop();
+		
 		nodes = data.nodes,
 		links = data.links;
 		computeNeighbors(nodes, links);
 		computeWeight(nodes, links);
 
-		var weight = {},
-			weightList = [];
+		 weight = {};
 
 		var shiftRange = 25;
 
 		var highSelected;
 
-		var dijSelected = [];
+		var awaitSource;
 		var dijToggle = 0;
 
 		if (config.onDataLoad)
@@ -22,7 +43,7 @@ graph = function(config) {
 
 		var width,
 			height,
-			innerRadius = 160;
+			innerRadius = 200;
 
 		updateWidthHeight();
 
@@ -53,19 +74,27 @@ graph = function(config) {
 			.style('fill', 'none')
 			.style('pointer-events', 'all')
 			.on('click', function() {
-				if ((dijToggle != 0 || highSelected) && !d3.event.defaultPrevented) {
-					resetStyling();
-				} else if ($('#search').val()) {
-					resetStyling();
-				}
+				resetStyling();
 			});
 
 		var vis = graph.append('svg:g')
 			.attr('transform', 'translate(' + ((width / 2) - 245) + ',' + ((height / 2) - 125) + ') scale(.35)');
 
-		weight = _(nodes).groupBy(function(d) { return d.weight }).forEach(function(d) { _(d).sortBy(function(n) { return n.data.year }).forEach(function(n, i) {n.r = i;});}).value();
+		weight = _(nodes).groupBy(function(d) {
+			return d.weight
+		}).forEach(function(d) {
+			_(d).sortBy(function(n) {
+				return n.data.year
+			}).forEach(function(n, i) {
+				n.r = i;
+			});
+		}).value();
 
-		angle = d3.scale.ordinal().domain(_.map(weight, function(d, i) {return Number(i)})).rangePoints([0, 2 * Math.PI - (Math.PI / 6)]);
+		innerRadius = 150 + 5 * Object.keys(weight).length;
+
+		angle = d3.scale.ordinal().domain(_.map(weight, function(d, i) {
+			return Number(i)
+		})).rangePoints([0, 2 * Math.PI - (Math.PI / 6)]);
 
 		var link = vis.selectAll(".link")
 			.data(links)
@@ -98,24 +127,28 @@ graph = function(config) {
 				return color(d.data.year - 2013);
 			})
 			.on('mouseover', function(d, i) {
-				var highlight = [d];
-				link.attr("opacity", function(l) {
-					if (nodes[l.source] == d || nodes[l.target] == d) {
-						highlight.push(nodes[l.source] == d ? nodes[l.target] : nodes[l.source]);
-						return 1;
-					}
-					return 0.1;
-				});
-				node.attr("opacity", function(d) {
-					return _.contains(highlight, d) ? 1 : 0.1;
-				});
-
-				tip.show.call(this, d, i);
+				if (d3.select(this).style('opacity') == "1") {
+					tip.show.call(this, d, i);
+				}
+				if (dijToggle == 1)
+					awaitSource(d);
 			})
 			.on('mouseout', function(d, i) {
-				link.attr('opacity', 1);
-				node.attr('opacity', 1);
 				tip.hide.call(this, d, i);
+				if (dijToggle == 1) {
+					node
+						.style({
+							'stroke': "#fff",
+							'stroke-width': '1.5px',
+							'opacity': 1
+						});
+
+					link
+						.style({
+							"opacity": 1,
+							'stroke': '#999'
+						});
+				}
 			})
 			.on('click', function(d, i) {
 				if (d3.select(this).style('opacity') == "1") {
@@ -125,8 +158,12 @@ graph = function(config) {
 				}
 			});
 
-		if (d3.select('#search').length) {
-			var search = d3.select('#search')
+		if (config.search) {
+			var search = d3.select('#graph')
+				.append('input')
+				.attr('id','search')
+				.classed('form-control', true)
+				.attr('placeholder', 'Search By Name')
 				.on('input', function() {
 					highlightSearch.call(this);
 				}).on('change', function() {
@@ -134,35 +171,61 @@ graph = function(config) {
 				}).on('mouseover', function() {
 					d3.select('#search').transition().duration(250).style('opacity', 1);
 				}).on('mouseout', function() {
-					if(!$("#search").is(":focus"))
+					if (!$("#search").is(":focus"))
 						d3.select('#search').transition().duration(250).style('opacity', 0.25);
 				}).on('focusout', function() {
 					d3.select('#search').transition().duration(250).style('opacity', 0.25);
 				}).on('keyup', function() {
-    				if (d3.event.keyCode == 13) {
-        				highlightSearch.call(this);
-    				}
+					if (d3.event.keyCode == 13) {
+						highlightSearch.call(this);
+					}
 				});
 		}
 
 		function resetStyling(d) {
 			node
-				.style({'stroke': "#fff", 'stroke-width': '1.5px', 'opacity': 1});
+				.style({
+					'stroke': "#fff",
+					'stroke-width': '1.5px',
+					'opacity': 1
+				});
 
 			link
-				.style({"opacity": 1, 'stroke': '#999'});
+				.style({
+					"opacity": 1,
+					'stroke': '#999'
+				});
 
 			highSelected = null;
-			dijToggle = 0;
-			dijSelected.clear();
 			source = null;
 			target = null;
 		}
 
+		var paintDijkstra = _.curry(function (source, target) {
+			var dijSelected = readDijkstra(target, dijkstra(nodes, source, target).prev);
+			dijSelected.push(source);
+			node.style("opacity", function(o) {
+				return (_.some(dijSelected, function(d) {
+					return d.index == o.index
+				})) ? 1 : 0.1;
+			}).style({
+				'stroke': "#fff",
+				'stroke-width': '1.5px'
+			});
+
+			link.style("opacity", function(o) {
+				return (_.some(dijSelected, function(d) {
+					return d.index == o.source
+				}) && _.some(dijSelected, function(d) {
+					return d.index == o.target
+				})) ? 1 : 0;
+			});
+		});
+
 		function clickRoute(d) {
 			d3.event.preventDefault();
 			if (!d3.event.shiftKey && !d3.event.altKey) {
-				if (!highSelected || d3.select(this).style('opacity') == '1') {
+				if ((!highSelected || d3.select(this).style('opacity') == '1') && dijToggle != 1) {
 					highSelected = d;
 
 					node
@@ -173,40 +236,15 @@ graph = function(config) {
 						.style("opacity", function(o) {
 							return ((o.source == highSelected.index || o.target == highSelected.index) && (_.contains(highSelected.neighbors, o.source) || _.contains(highSelected.neighbors, o.target))) ? 1 : 0;
 						})
+				} else if(dijToggle == 1) {
+					awaitSource(d);
+					dijToggle = 0;
 				}
 			} else if (d3.event.shiftKey && !d3.event.altKey) {
 				if (dijToggle == 0) {
 					source = _.cloneDeep(d);
-					dijSelected.push(source);
+					awaitSource = paintDijkstra(source);
 					dijToggle++;
-
-					var origColor = d3.hsl(d3.select(this).style('fill'));
-					d3.select(this)
-						.style('stroke', d3.hsl((origColor.h + 180) % 360, origColor.s, origColor.l).toString())
-						.style('stroke-width', '3px');
-
-				} else if (dijToggle == 1) {
-					var target = _.cloneDeep(d);
-					var source = dijSelected[0];
-					dijSelected = readDijkstra(target, dijkstra(nodes, source, target).prev);
-					dijSelected.push(source);
-					dijToggle++;
-					node.style("opacity", function(o) {
-						return (_.some(dijSelected, function(d) {
-							return d.index == o.index
-						})) ? 1 : 0.1;
-					}).style({
-						'stroke': "#fff",
-						'stroke-width': '1.5px'
-					});
-
-					link.style("opacity", function(o) {
-						return (_.some(dijSelected, function(d) {
-							return d.index == o.source
-						}) && _.some(dijSelected, function(d) {
-							return d.index == o.target
-						})) ? 1 : 0;
-					});
 				}
 			} else if (!d3.event.shiftKey && d3.event.altKey) {
 				var source = d;
@@ -279,12 +317,12 @@ graph = function(config) {
 			}
 
 			node.style('opacity', function(d) {
-					return d.data.name.toLowerCase().indexOf(search) != -1 ? 1 : 0.1;
-				})
+				return d.data.name.toLowerCase().indexOf(search) != -1 ? 1 : 0.1;
+			})
 
 			link.style('opacity', function(d) {
-					return (nodes[d.source].data.name.toLowerCase().indexOf(search) != -1 && nodes[d.target].data.name.toLowerCase().indexOf(search) != -1) ? 1 : 0.1;
-				})
+				return (nodes[d.source].data.name.toLowerCase().indexOf(search) != -1 && nodes[d.target].data.name.toLowerCase().indexOf(search) != -1) ? 1 : 0.1;
+			})
 		}
 
 		function zoom() {
