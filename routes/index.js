@@ -15,7 +15,7 @@ router.get('/', function(req, res) {
     res.redirect('/graphs/main');
 });
 
-
+/*
 router.get('/register', function(req, res) {
     res.render('register', {
         title: 'Register',
@@ -26,6 +26,7 @@ router.get('/register', function(req, res) {
 function authenticateEmail(email) {
     return email.match("@thacher\.org$");
 }
+
 
 router.post('/register', function(req, res) {
 
@@ -72,7 +73,7 @@ router.post('/register', function(req, res) {
     });
 
 });
-
+*/
 
 
 router.get('/login', function(req, res) {
