@@ -159,7 +159,7 @@ router.delete('/users', function(req, res) {
 
 	var query = [
 		'MATCH (a)-[r]-(b)',
-		'WHERE id(a)= { a } AND id(b)={ b }',
+		'WHERE id(a)=569 AND id(b)=413 AND none(x IN r.req_del WHERE x={ req_del })',
 		'WITH DISTINCT r',
 		'SET r.req_del = r.req_del + [{ req_del }]'
 	].join('\n');
