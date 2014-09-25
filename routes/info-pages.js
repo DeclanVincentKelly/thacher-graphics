@@ -93,9 +93,7 @@ router.get('/class/:year', function(req, res) {
 		user: req.user,
 		groups: req.session.groups,
 		year: Number(req.params.year),
-		otherYears: years.filter(function(elem) {
-			return elem != Number(req.params.year)
-		}),
+		otherYears: years,
 	});
 
 });
