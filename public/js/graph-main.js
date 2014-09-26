@@ -114,25 +114,27 @@ graph = function(config) {
 			.on('mouseover', function(d, i) {
 				if (d3.select(this).style('opacity') == "1") {
 					tip.show.call(this, d, i);
+					if (dijToggle == 1)
+						awaitSource(d);
 				}
-				if (dijToggle == 1)
-					awaitSource(d);
 			})
 			.on('mouseout', function(d, i) {
-				tip.hide.call(this, d, i);
-				if (dijToggle == 1) {
-					node
-						.style({
-							'stroke': "#fff",
-							'stroke-width': '1.5px',
-							'opacity': 1
-						});
+				if (d3.select(this).style('opacity') == "1") {
+					tip.hide.call(this, d, i);
+					if (dijToggle == 1) {
+						node
+							.style({
+								'stroke': "#fff",
+								'stroke-width': '1.5px',
+								'opacity': 1
+							});
 
-					link
-						.style({
-							"opacity": 1,
-							'stroke': '#999'
-						});
+						link
+							.style({
+								"opacity": 1,
+								'stroke': '#999'
+							});
+					}
 				}
 			})
 			.on('click', function(d, i) {
@@ -147,7 +149,7 @@ graph = function(config) {
 		if (config.search) {
 			var search = d3.select('#graph')
 				.append('input')
-				.attr('id','search')
+				.attr('id', 'search')
 				.classed('form-control', true)
 				.attr('placeholder', 'Search By Name')
 				.on('input', function() {
@@ -298,7 +300,7 @@ graph = function(config) {
 			})
 		}
 
-		var paintDijkstra = _.curry(function (source, target) {
+		var paintDijkstra = _.curry(function(source, target) {
 			var dijSelected = readDijkstra(target, dijkstra(nodes, source, target).prev);
 			dijSelected.push(source);
 			node.style("opacity", function(o) {

@@ -16,6 +16,7 @@
 	stroke-opacity: .6;
 	fill: none;
 	stroke-width: 3px;
+	pointer-events: none;
 }
 #graph {
 	padding: 0;
