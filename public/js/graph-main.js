@@ -61,7 +61,8 @@ graph = function(config) {
 			.style('fill', 'none')
 			.style('pointer-events', 'all')
 			.on('click', function() {
-				resetStyling();
+				if(!d3.event.defaultPrevented)
+					resetStyling();
 			});
 
 		var vis = graph.append('svg:g');
@@ -74,12 +75,11 @@ graph = function(config) {
 
 		var drag = force.drag()
 			.on('dragstart', function() {
-				d3.event.sourceEvent.stopPropagation();
 				if (force.alpha() == 0)
 					force.alpha(.01);
 			})
 			.on('dragend', function() {
-				d3.event.sourceEvent.stopPropagation();
+				d3.event.sourceEvent.preventDefault();
 			});
 
 		force
@@ -322,7 +322,6 @@ graph = function(config) {
 		});
 
 		function clickRoute(d) {
-			d3.event.preventDefault();
 			if (!d3.event.shiftKey && !d3.event.altKey) {
 				if ((!highSelected || d3.select(this).style('opacity') == '1') && dijToggle != 1) {
 					highSelected = d;
