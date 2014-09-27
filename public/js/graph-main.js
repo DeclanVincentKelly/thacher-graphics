@@ -50,9 +50,11 @@ graph = function(config) {
 			.attr("width", width)
 			.attr("height", height)
 
+		var zoomB = d3.behavior.zoom().scaleExtent([.2, 4]).on("zoom", zoom)
+
 		var graph = svg.append('g')
 			.call(tip)
-			.call(d3.behavior.zoom().scaleExtent([.2, 4]).on("zoom", zoom));
+			.call(zoomB);
 
 
 		var rect = graph.append('rect')
@@ -61,7 +63,7 @@ graph = function(config) {
 			.style('fill', 'none')
 			.style('pointer-events', 'all')
 			.on('click', function() {
-				if(!d3.event.defaultPrevented)
+				if (!d3.event.defaultPrevented)
 					resetStyling();
 			});
 
@@ -75,6 +77,7 @@ graph = function(config) {
 
 		var drag = force.drag()
 			.on('dragstart', function() {
+				d3.event.sourceEvent.stopPropagation();
 				if (force.alpha() == 0)
 					force.alpha(.01);
 			})
