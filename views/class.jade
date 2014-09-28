@@ -8,7 +8,7 @@ block body
 		script(src='/js/graph-main.js')
 		script(src='/js/jquery.tablesorter.min.js')
 		script(type='text/javascript' defer).
-			var loadTables = function() {
+			var loadTables = function(nodes, links) {
 				var rowString = '<tr class="data-row" href="/pages/users/{ID}"><td>{ID}</td><td>{Name}</td><td>{Gender}</td><td><a href="/pages/class/{Year}">{Year}</a></td></tr>';
 				var relTable = $('#class-data > tbody:last');
 				for(var i in nodes) {

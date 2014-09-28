@@ -24,8 +24,8 @@ graph = function(config) {
 
 		spinner.stop();
 		
-		nodes = data.nodes,
-		links = data.links;
+		var nodes = data.nodes,
+		var links = data.links;
 		computeNeighbors(nodes, links);
 		computeWeight(nodes, links);
 
@@ -39,7 +39,7 @@ graph = function(config) {
 		var dijToggle = 0;
 
 		if (config.onDataLoad)
-			config.onDataLoad();
+			config.onDataLoad(nodes, links);
 
 		var width,
 			height,

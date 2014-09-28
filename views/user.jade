@@ -9,7 +9,7 @@ block body
 		script(src='/js/jquery.tablesorter.min.js')
 		script(type='text/javascript' defer).
 
-			var loadTables = function() {
+			var loadTables = function(nodes, links) {
 				document.title = document.title.slice(0, document.title.indexOf('|') + 2) + nodes[0].data.name;
 				var rowString = '<tr class="data-row" href="/pages/users/{ID}"><td>{ID}</td><td>{Name}</td><td>{Gender}</td><td><a href="/pages/class/{Year}">{Year}</a></td></tr>';
 				

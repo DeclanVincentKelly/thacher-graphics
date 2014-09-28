@@ -22,10 +22,10 @@ graph = function(config) {
 	d3.json(config.queryURL, function(err, json) {
 		if (err) throw err;
 
-		nodes = json.nodes;
-		links = json.links;
+		var nodes = json.nodes;
+		var links = json.links;
 		if (config.onDataLoad)
-			config.onDataLoad();
+			config.onDataLoad(nodes, links);
 		spinner.stop();
 
 		var shiftRange = 25;
