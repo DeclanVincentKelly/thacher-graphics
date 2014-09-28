@@ -24,8 +24,8 @@ graph = function(config) {
 
 		spinner.stop();
 		
-		var nodes = data.nodes,
-		var links = data.links;
+		var nodes = data.nodes;
+		var	links = data.links;
 		computeNeighbors(nodes, links);
 		computeWeight(nodes, links);
 
