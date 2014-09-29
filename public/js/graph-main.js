@@ -50,7 +50,10 @@ graph = function(config) {
 			.attr("width", width)
 			.attr("height", height)
 
-		var zoomB = d3.behavior.zoom().scaleExtent([.2, 4]).on("zoom", zoom)
+		 zoomFlag = false;
+		var zoomB = d3.behavior.zoom().scaleExtent([.2, 4]).on("zoom", zoom).on('zoomend', function() {
+			zoomFlag = true;
+		});
 
 		var graph = svg.append('g')
 			.call(tip)
@@ -63,8 +66,9 @@ graph = function(config) {
 			.style('fill', 'none')
 			.style('pointer-events', 'all')
 			.on('click', function() {
-				if (!d3.event.defaultPrevented)
+				if (!zoomFlag)
 					resetStyling();
+				zoomFlag = false;
 			});
 
 		var vis = graph.append('svg:g');
@@ -78,11 +82,10 @@ graph = function(config) {
 		var drag = force.drag()
 			.on('dragstart', function() {
 				d3.event.sourceEvent.stopPropagation();
+				if (d3.select(this).style('opacity') != "1")
+					return;
 				if (force.alpha() == 0)
 					force.alpha(.01);
-			})
-			.on('dragend', function() {
-				d3.event.sourceEvent.preventDefault();
 			});
 
 		force
@@ -304,8 +307,10 @@ graph = function(config) {
 		}
 
 		var paintDijkstra = _.curry(function(source, target) {
-			var dijSelected = readDijkstra(target, dijkstra(nodes, source, target).prev);
+			var res = dijkstra(nodes, source, target);
+			var dijSelected = readDijkstra(target, res.prev);
 			dijSelected.push(source);
+			if (res.dist[target.index] == Infinity) dijSelected.push(target);
 			node.style("opacity", function(o) {
 				return (_.some(dijSelected, function(d) {
 					return d.index == o.index
@@ -314,6 +319,11 @@ graph = function(config) {
 				'stroke': "#fff",
 				'stroke-width': '1.5px'
 			});
+
+			if (res.dist[target.index] == Infinity) {
+				link.style('opacity', 0);
+				return;
+			}
 
 			link.style("opacity", function(o) {
 				return (_.some(dijSelected, function(d) {

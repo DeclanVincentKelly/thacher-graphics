@@ -74,9 +74,9 @@ html
 										span.caret
 									ul.dropdown-menu(role='menu')
 										li
-											a(onclick="$('#rel-modal').modal({keyboard: false});") Add Relationship
+											a(onclick="$('#rel-modal').modal({keyboard: false, backdrop: 'static'});") Add Relationship
 										li
-											a(onclick="$('#del-rel-modal').modal({keyboard: false});") Delete Relationship
+											a(onclick="$('#del-rel-modal').modal({keyboard: false, backdrop: 'static'});") Delete Relationship
 						ul.nav.navbar-nav.navbar-right
 							li.dropdown
 								a.dropdown-toggle(href='#', data-toggle='dropdown')
@@ -263,6 +263,8 @@ html
 
 				function resetAddModal() {
 					$('#rel-modal #rel-modal-title').text('Select First Person');
+					$('#rel-modal #select-grade').select2('val', "");
+					$('#rel-modal #select-gender').select2('val', "");
 					user.select2("val", "");
 					user.trigger('change');
 					for(var i in sel['#rel-modal'].dimensions)
@@ -291,7 +293,6 @@ html
 					if(dState == 0) {
 						dIds['a'] = +dUser.val();
 						$('#del-rel-modal').modal('hide');
-						console.log('/data/users/' + dIds['a'] + '/rels');
 						$.ajax({
 							url: '/data/users/' + dIds['a'] + '/rels',
 							type: 'GET',
@@ -331,6 +332,8 @@ html
 						parentID: '#del-rel-modal'
 					});
 					$('#del-rel-modal #del-rel-modal-title').text('Select First Person');
+					$('#del-rel-modal #select-grade').select2('val', "");
+					$('#del-rel-modal #select-gender').select2('val', "");
 					dUser.select2("val", "");
 					dUser.trigger('change');
 					for(var i in sel['#del-rel-modal'].dimensions)
