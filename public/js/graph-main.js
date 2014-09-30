@@ -50,9 +50,9 @@ graph = function(config) {
 			.attr("width", width)
 			.attr("height", height)
 
-		 zoomFlag = false;
 		var zoomB = d3.behavior.zoom().scaleExtent([.2, 4]).on("zoom", zoom).on('zoomend', function() {
-			zoomFlag = true;
+			if(d3.event.sourceEvent)
+				d3.event.sourceEvent.preventDefault();
 		});
 
 		var graph = svg.append('g')
@@ -66,9 +66,9 @@ graph = function(config) {
 			.style('fill', 'none')
 			.style('pointer-events', 'all')
 			.on('click', function() {
-				if (!zoomFlag)
+				console.log(d3.event);
+				if(!d3.event.defaultPrevented)
 					resetStyling();
-				zoomFlag = false;
 			});
 
 		var vis = graph.append('svg:g');
@@ -82,6 +82,7 @@ graph = function(config) {
 		var drag = force.drag()
 			.on('dragstart', function() {
 				d3.event.sourceEvent.stopPropagation();
+				d3.event.sourceEvent.preventDefault();
 				if (d3.select(this).style('opacity') != "1")
 					return;
 				if (force.alpha() == 0)
@@ -144,9 +145,9 @@ graph = function(config) {
 				}
 			})
 			.on('click', function(d, i) {
-				if (d3.select(this).style('opacity') == "1") {
+				if (d3.select(this).style('opacity') == "1" && !d3.event.defaultPrevented) {
 					clickRoute.call(this, d, i);
-				} else {
+				} else if(d3.select(this).style('opacity') != "1") {
 					resetStyling();
 				}
 			})
